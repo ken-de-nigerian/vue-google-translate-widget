@@ -154,7 +154,7 @@ body {
 3. **Use `!important`** to ensure your styles override Google's defaults
 4. **Test regularly** to ensure branding remains hidden
 
-These styles work as of November 2024 but may need adjustment in the future.
+These styles work as of November 2025 but may need adjustment in the future.
 
 ### Alternative: Custom Styling
 
