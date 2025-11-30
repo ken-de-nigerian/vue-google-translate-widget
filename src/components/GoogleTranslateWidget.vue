@@ -556,4 +556,44 @@ onMounted(() => {
     bottom: 1.5rem;
   }
 }
+
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+.goog-te-gadget .goog-te-combo {
+  color: #b5b5b5 !important;
+}
+
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd:link,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd:visited,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd:hover,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd:active {
+  font-size: 12px;
+  font-weight: bold;
+  color: #444;
+  text-decoration: none;
+  display: none;
+}
+
+.goog-te-gadget img {
+  display: none !important;
+}
+
+body > .skiptranslate {
+  display: none;
+}
+
+body {
+  top: 0 !important;
+}
 </style>
