@@ -1,6 +1,6 @@
 {
   "name": "@ken_de_nigerian/vue-google-translate-widget",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Vue 3 composable and component library for Google Translate integration",
   "type": "module",
   "main": "./dist/vue-google-translate-widget.umd.cjs",
