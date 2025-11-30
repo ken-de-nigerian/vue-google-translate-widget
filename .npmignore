@@ -1,0 +1,15 @@
+src
+node_modules
+.vscode
+.idea
+*.log
+.DS_Store
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+.gitignore
+examples
+docs
+tests
+*.test.ts
+*.spec.ts
