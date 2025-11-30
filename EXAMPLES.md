@@ -6,8 +6,8 @@
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -21,8 +21,8 @@ import 'vue-google-translate-widget/dist/style.css'
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -39,8 +39,8 @@ import 'vue-google-translate-widget/dist/style.css'
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -75,7 +75,7 @@ import 'vue-google-translate-widget/dist/style.css'
 ```vue
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useGoogleTranslate } from 'vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const {
   currentLanguage,
@@ -118,8 +118,8 @@ const handleChange = () => {
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateButton } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateButton } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 
 const handleLanguageChange = (lang: string) => {
   console.log('Language changed to:', lang)
@@ -154,8 +154,8 @@ nav {
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateButton } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateButton } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -238,8 +238,8 @@ import 'vue-google-translate-widget/dist/style.css'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 
 const isDark = ref(false)
 
@@ -301,7 +301,7 @@ const toggleDark = () => {
 ```vue
 <script setup lang="ts">
 import { watch, onMounted } from 'vue'
-import { useGoogleTranslate } from 'vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const { currentLanguage, initializeTranslate } = useGoogleTranslate()
 
@@ -341,8 +341,8 @@ onMounted(() => {
 ```vue
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
-import 'vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 
 const userPreferences = ref({
   language: 'en',
@@ -414,7 +414,7 @@ header {
 
 ```typescript
 import { ref, type Ref } from 'vue'
-import { useGoogleTranslate, type Language } from 'vue-google-translate-widget'
+import { useGoogleTranslate, type Language } from '@ken-de-nigerian/vue-google-translate-widget'
 
 interface UserSettings {
   language: string
@@ -451,7 +451,7 @@ const getLanguageByCode = (code: string): Language | undefined => {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { GoogleTranslateWidget } from 'vue-google-translate-widget'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const showTranslate = ref(false)
 const userCountry = ref('US')
@@ -472,7 +472,7 @@ if (userCountry.value !== 'US') {
 ```vue
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useGoogleTranslate } from 'vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const { currentLanguage, changeLanguage, initializeTranslate } = useGoogleTranslate()
 

@@ -1,15 +1,19 @@
-src
-node_modules
-.vscode
-.idea
-*.log
-.DS_Store
+# Source files
+src/
+*.vue
+*.ts
+!*.d.ts
+
+# Config files
+vite.config.ts
 tsconfig.json
 tsconfig.node.json
-vite.config.ts
-.gitignore
-examples
-docs
-tests
-*.test.ts
-*.spec.ts
+
+# Build files
+node_modules/
+.DS_Store
+*.log
+
+# Scripts
+*.sh
+*.bat

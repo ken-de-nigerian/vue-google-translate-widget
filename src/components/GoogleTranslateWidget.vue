@@ -169,13 +169,13 @@ onMounted(() => {
                 <div class="gtw-language-content">
                   <div v-if="showFlags" class="gtw-flag-wrapper">
                     <img
-                      class="gtw-flag"
-                      :src="`https://flagcdn.com/${language.flag}.svg`"
-                      :alt="`${language.name} flag`"
-                      loading="lazy"
-                      @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')" />
+                        class="gtw-flag"
+                        :src="`https://flagcdn.com/${language.flag}.svg`"
+                        :alt="`${language.name} flag`"
+                        loading="lazy"
+                        @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
                     <div
-                      v-if="currentLanguage === language.code && !isChangingLanguage"
+                        v-if="currentLanguage === language.code && !isChangingLanguage"
                       class="gtw-check-badge">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

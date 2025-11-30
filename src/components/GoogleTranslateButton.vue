@@ -114,11 +114,11 @@ onMounted(() => {
             { 'gtb-dropdown-item-active': currentLanguage === language.code },
           ]">
           <img
-            class="gtb-flag"
-            :src="`https://flagcdn.com/${language.flag}.svg`"
-            :alt="`${language.name} flag`"
-            loading="lazy"
-            @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')" />
+              class="gtb-flag"
+              :src="`https://flagcdn.com/${language.flag}.svg`"
+              :alt="`${language.name} flag`"
+              loading="lazy"
+              @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
           <span class="gtb-language-name">{{ language.nativeName }}</span>
           <svg
             v-if="currentLanguage === language.code"
