@@ -556,7 +556,9 @@ onMounted(() => {
     bottom: 1.5rem;
   }
 }
+</style>
 
+<style>
 .goog-logo-link {
   display: none !important;
 }

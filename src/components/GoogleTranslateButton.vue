@@ -235,7 +235,9 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-0.5rem);
 }
+</style>
 
+<style>
 .goog-logo-link {
   display: none !important;
 }
