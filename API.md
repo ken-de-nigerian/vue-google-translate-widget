@@ -185,6 +185,59 @@ interface Language {
 }
 ```
 
+## Hiding Google Translate Branding
+
+Google Translate adds branding elements (logo, "Powered by" text, banner) to your page by default. You can hide these by adding global CSS styles to your application.
+
+### How to Hide Branding
+
+Add these styles to your **global CSS file** (e.g., `src/assets/main.css`) or in a `<style>` block in your root component (`App.vue`):
+
+```css
+/* Hide Google Translate Branding */
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-l4eHX-hSRGPd {
+  display: none !important;
+}
+
+.goog-te-gadget img {
+  display: none !important;
+}
+
+body > .skiptranslate,
+iframe.skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+```
+
+### ⚠️ Important: Google Styles May Change
+
+**Please note:** Google periodically updates their translate widget, which may change class names and HTML structure. If branding elements reappear after a Google update:
+
+1. **Open DevTools** and inspect the Google Translate elements
+2. **Find the current class names** being used
+3. **Update your CSS selectors** accordingly
+4. **Keep using `!important`** to ensure your styles override Googles defaults
+
+The CSS above is current as of November 2024 but may need adjustment in the future. Feel free to modify these styles to suit your needs.
+
+
 ## Styling
 
 ### CSS Classes

@@ -54,6 +54,55 @@ import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 <style>
 /* Custom button color */
 .gtw-float-button {
+
+### Hiding Google Translate Branding
+
+```vue
+<script setup lang="ts">
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
+</script>
+
+<template>
+  <GoogleTranslateWidget />
+</template>
+
+<!-- Add these global styles to hide Google branding -->
+<style>
+/* Hide Google Translate Branding */
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-l4eHX-hSRGPd {
+  display: none !important;
+}
+
+.goog-te-gadget img {
+  display: none !important;
+}
+
+body > .skiptranslate,
+iframe.skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+</style>
+```
+
+**Note:** Google periodically updates their widget which may change these class names. If branding reappears, inspect the elements in DevTools and update the selectors accordingly.
+
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 

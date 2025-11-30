@@ -102,6 +102,64 @@ onMounted(() => {
 </template>
 ```
 
+## Hiding Google Translate Branding
+
+By default, Google Translate adds branding elements (logo, "Powered by Google" text, banner) to your page. You can hide these by adding global CSS styles to your application.
+
+### Adding Global Styles
+
+Add these styles to your **global CSS file** or in a `<style>` tag in your root component (e.g., `App.vue`):
+
+```vue
+<style>
+/* Hide Google Translate Branding */
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-l4eHX-hSRGPd {
+  display: none !important;
+}
+
+.goog-te-gadget img {
+  display: none !important;
+}
+
+body > .skiptranslate,
+iframe.skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+</style>
+```
+
+### Important Notes About Google Styles
+
+⚠️ **Please note:** Google Translate's CSS class names and HTML structure may change over time as Google updates their service. If the branding starts appearing again after a Google update:
+
+1. **Inspect the elements** using your browser's DevTools to find the current class names
+2. **Update the CSS selectors** accordingly
+3. **Use `!important`** to ensure your styles override Google's defaults
+4. **Test regularly** to ensure branding remains hidden
+
+These styles work as of November 2024 but may need adjustment in the future.
+
+### Alternative: Custom Styling
+
+You can also customize individual Google Translate elements to match your design instead of hiding them completely. Inspect the elements and apply your own styles.
+
 ## Component Props
 
 ### GoogleTranslateWidget
@@ -357,6 +415,15 @@ The build uses Vite with the dts plugin for TypeScript definitions:
   }
 }
 ```
+
+### Google Translate Branding Still Showing
+
+If Google Translate branding is still visible after adding the CSS:
+
+1. Make sure the styles are in your **global CSS** file or root component
+2. Check that you're using `!important` on the styles
+3. Inspect the Google Translate elements in DevTools - Google may have changed their class names
+4. Update the CSS selectors to match the current Google Translate markup
 
 ## Contributing
 
