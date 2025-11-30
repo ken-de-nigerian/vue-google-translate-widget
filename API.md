@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install @ken_de_nigerian/vue-google-translate-widget
+npm install @ken-de-nigerian/vue-google-translate-widget
 ```
 
 ## Composables
@@ -41,7 +41,7 @@ interface UseGoogleTranslateReturn {
 ```vue
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useGoogleTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const {
   currentLanguage,
@@ -104,8 +104,8 @@ interface Props {
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateWidget } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -143,8 +143,8 @@ interface Props {
 
 ```vue
 <script setup lang="ts">
-import { GoogleTranslateButton } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateButton } from '@ken-de-nigerian/vue-google-translate-widget'
+import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
 
 const onLanguageChange = (lang: string) => {
   console.log('Language changed to:', lang)
@@ -291,7 +291,7 @@ You can override styles globally:
 ### Custom Language List
 
 ```typescript
-import { useGoogleTranslate, type Language } from '@ken_de_nigerian/vue-google-translate-widget'
+import { useGoogleTranslate, type Language } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const myLanguages: Language[] = [
   { name: 'English', nativeName: 'English', code: 'en', flag: 'gb' },
@@ -321,7 +321,7 @@ console.log(currentLanguage.value) // 'es'
 ```vue
 <script setup lang="ts">
 import { watch, onMounted } from 'vue'
-import { useGoogleTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
 
 const { currentLanguage, initializeTranslate } = useGoogleTranslate()
 
@@ -448,7 +448,7 @@ import type {
   Language,
   UseGoogleTranslateOptions,
   UseGoogleTranslateReturn
-} from '@ken_de_nigerian/vue-google-translate-widget'
+} from '@ken-de-nigerian/vue-google-translate-widget'
 ```
 
 ## Troubleshooting
@@ -461,7 +461,7 @@ import type {
 
 ### Styling issues
 
-1. Ensure you've imported the CSS: `import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'`
+1. Ensure you've imported the CSS: `import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'`
 2. Use `!important` to override default styles if needed
 3. Check for CSS conflicts with your global styles
 
@@ -478,6 +478,6 @@ Ensure you have the correct package versions:
 
 ## Support
 
-- [GitHub Issues](https://github.com/ken_de_nigerian/vue-google-translate-widget/issues)
-- [Documentation](https://github.com/ken_de_nigerian/vue-google-translate-widget)
-- [npm Package](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
+- [GitHub Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
+- [Documentation](https://github.com/ken-de-nigerian/vue-google-translate-widget)
+- [npm Package](https://www.npmjs.com/package/@ken-de-nigerian/vue-google-translate-widget)
