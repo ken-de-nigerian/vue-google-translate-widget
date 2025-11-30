@@ -16,19 +16,19 @@ A lightweight, customizable Vue 3 component and composable library for integrati
 ## Installation
 
 ```bash
-npm install @ken-de-nigerian/vue-google-translate-widget
+npm install @ken_de_nigerian/vue-google-translate-widget
 ```
 
 or
 
 ```bash
-yarn add @ken-de-nigerian/vue-google-translate-widget
+yarn add @ken_de_nigerian/vue-google-translate-widget
 ```
 
 or
 
 ```bash
-pnpm add @ken-de-nigerian/vue-google-translate-widget
+pnpm add @ken_de_nigerian/vue-google-translate-widget
 ```
 
 ## Quick Start
@@ -39,8 +39,8 @@ The easiest way to get started is with the `GoogleTranslateWidget` component:
 
 ```vue
 <script setup>
-import { GoogleTranslateWidget } from '@ken-de-nigerian/vue-google-translate-widget'
-import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget } from '@ken_de_nigerian/vue-google-translate-widget'
+import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -54,8 +54,8 @@ For a more compact dropdown button:
 
 ```vue
 <script setup>
-import { GoogleTranslateButton } from '@ken-de-nigerian/vue-google-translate-widget'
-import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateButton } from '@ken_de_nigerian/vue-google-translate-widget'
+import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
 </script>
 
 <template>
@@ -69,7 +69,7 @@ For complete control, use the `useGoogleTranslate` composable:
 
 ```vue
 <script setup>
-import { useGoogleTranslate } from '@ken-de-nigerian/vue-google-translate-widget'
+import { useGoogleTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
 import { onMounted } from 'vue'
 
 const {
@@ -154,7 +154,7 @@ body {
 3. **Use `!important`** to ensure your styles override Google's defaults
 4. **Test regularly** to ensure branding remains hidden
 
-These styles work as of November 2024 but may need adjustment in the future.
+These styles work as of November 2025 but may need adjustment in the future.
 
 ### Alternative: Custom Styling
 
@@ -275,8 +275,8 @@ Create a plugin to register globally:
 
 ```javascript
 // plugins/google-translate.client.js
-import { GoogleTranslateWidget, GoogleTranslateButton } from '@ken-de-nigerian/vue-google-translate-widget'
-import '@ken-de-nigerian/vue-google-translate-widget/dist/style.css'
+import { GoogleTranslateWidget, GoogleTranslateButton } from '@ken_de_nigerian/vue-google-translate-widget'
+import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('GoogleTranslateWidget', GoogleTranslateWidget)
@@ -334,7 +334,7 @@ import type {
   Language, 
   UseGoogleTranslateOptions, 
   UseGoogleTranslateReturn 
-} from '@ken-de-nigerian/vue-google-translate-widget'
+} from '@ken_de_nigerian/vue-google-translate-widget'
 ```
 
 ## Development
@@ -360,7 +360,7 @@ vue-google-translate-widget/
 
 ```bash
 # Clone the repository
-git clone https://github.com/ken-de-nigerian/vue-google-translate-widget.git
+git clone https://github.com/ken_de_nigerian/vue-google-translate-widget.git
 cd vue-google-translate-widget
 
 # Install dependencies
@@ -441,8 +441,8 @@ MIT © Nwaneri Chukwunyere Kenneth
 
 ## Support
 
-- [GitHub Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
-- [Documentation](https://github.com/ken-de-nigerian/vue-google-translate-widget#readme)
+- [GitHub Issues](https://github.com/ken_de_nigerian/vue-google-translate-widget/issues)
+- [Documentation](https://github.com/ken_de_nigerian/vue-google-translate-widget#readme)
 - [API Reference](./API.md)
 - [Examples](./EXAMPLES.md)
 
@@ -452,6 +452,6 @@ Built with ❤️ using Vue 3, TypeScript, and Vite.
 
 ## Links
 
-- [npm Package](https://www.npmjs.com/package/@ken-de-nigerian/vue-google-translate-widget)
-- [GitHub Repository](https://github.com/ken-de-nigerian/vue-google-translate-widget)
-- [Report Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
+- [npm Package](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
+- [GitHub Repository](https://github.com/ken_de_nigerian/vue-google-translate-widget)
+- [Report Issues](https://github.com/ken_de_nigerian/vue-google-translate-widget/issues)

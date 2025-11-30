@@ -1,5 +1,5 @@
 {
-  "name": "@ken-de-nigerian/vue-google-translate-widget",
+  "name": "@ken_de_nigerian/vue-google-translate-widget",
   "version": "1.0.0",
   "description": "A Vue 3 composable and component library for Google Translate integration",
   "type": "module",
@@ -38,12 +38,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ken-de-nigerian/vue-google-translate-widget.git"
+    "url": "https://github.com/ken_de_nigerian/vue-google-translate-widget.git"
   },
   "bugs": {
-    "url": "https://github.com/ken-de-nigerian/vue-google-translate-widget/issues"
+    "url": "https://github.com/ken_de_nigerian/vue-google-translate-widget/issues"
   },
-  "homepage": "https://github.com/ken-de-nigerian/vue-google-translate-widget#readme",
+  "homepage": "https://github.com/ken_de_nigerian/vue-google-translate-widget#readme",
   "peerDependencies": {
     "vue": "^3.3.0"
   },
