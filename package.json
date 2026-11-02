@@ -8,51 +8,108 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/vue-google-translate-widget.js",
-      "require": "./dist/vue-google-translate-widget.umd.cjs",
-      "types": "./dist/index.d.ts"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/vue-google-translate-widget.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/vue-google-translate-widget.umd.cjs"
+      }
     },
-    "./dist/style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css",
+    "./package.json": "./package.json"
   },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:types": "vue-tsc --declaration --emitDeclarationOnly",
+    "build": "vite build && node scripts/copy-cts-types.mjs",
     "preview": "vite preview",
-    "prepublishOnly": "npm run build"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints .",
+    "size": "size-limit",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish"
   },
   "keywords": [
     "vue",
     "vue3",
+    "nuxt",
     "google-translate",
+    "website-translator",
+    "language-switcher",
+    "language-selector",
+    "multilingual",
+    "localization",
     "i18n",
     "translation",
+    "rtl",
     "composable",
     "typescript"
   ],
-  "author": "Nwaneri Chukwunyere Kenneth",
+  "author": {
+    "name": "Nwaneri Chukwunyere Kenneth",
+    "email": "ken.de.nigerian@gmail.com",
+    "url": "https://github.com/ken-de-nigerian"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ken_de_nigerian/vue-google-translate-widget.git"
+    "url": "git+https://github.com/ken-de-nigerian/vue-google-translate-widget.git"
   },
   "bugs": {
-    "url": "https://github.com/ken_de_nigerian/vue-google-translate-widget/issues"
+    "url": "https://github.com/ken-de-nigerian/vue-google-translate-widget/issues"
   },
-  "homepage": "https://github.com/ken_de_nigerian/vue-google-translate-widget#readme",
+  "homepage": "https://github.com/ken-de-nigerian/vue-google-translate-widget#readme",
   "peerDependencies": {
     "vue": "^3.3.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@size-limit/file": "^14.3.0",
     "@vitejs/plugin-vue": "^5.0.0",
+    "@vitest/coverage-v8": "^3.2.7",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/test-utils": "^2.5.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "^10.12.0",
+    "happy-dom": "^21.0.4",
+    "prettier": "^3.9.10",
+    "publint": "^0.3.25",
+    "size-limit": "^14.3.0",
     "typescript": "^5.5.0",
     "vite": "^5.4.0",
     "vite-plugin-dts": "^4.0.0",
+    "vitest": "^3.2.7",
     "vue": "^3.4.0",
     "vue-tsc": "^2.1.0"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "ESM bundle (all exports)",
+      "path": "dist/vue-google-translate-widget.js",
+      "limit": "7.5 kB"
+    },
+    {
+      "name": "Stylesheet",
+      "path": "dist/style.css",
+      "limit": "2 kB"
+    }
+  ]
 }

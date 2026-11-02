@@ -19,13 +19,7 @@ const emit = defineEmits<{
   languageChanged: [language: string]
 }>()
 
-const {
-  currentLanguage,
-  isChangingLanguage,
-  languages,
-  changeLanguage,
-  initializeTranslate,
-} = useGoogleTranslate({
+const { currentLanguage, isChangingLanguage, languages, changeLanguage, initializeTranslate } = useGoogleTranslate({
   defaultLanguage: props.defaultLanguage,
   includedLanguages: props.includedLanguages,
   languages: props.languages,
@@ -47,7 +41,7 @@ const toggleDropdown = () => {
 
 onMounted(() => {
   initializeTranslate()
-  
+
   // Close dropdown when clicking outside
   const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as HTMLElement
@@ -55,9 +49,9 @@ onMounted(() => {
       isOpen.value = false
     }
   }
-  
+
   document.addEventListener('click', handleClickOutside)
-  
+
   return () => {
     document.removeEventListener('click', handleClickOutside)
   }
@@ -66,10 +60,7 @@ onMounted(() => {
 
 <template>
   <div class="gtb-container">
-    <button
-      @click="toggleDropdown"
-      :class="['gtb-button', buttonClass]"
-      :disabled="isChangingLanguage">
+    <button :class="['gtb-button', buttonClass]" :disabled="isChangingLanguage" @click="toggleDropdown">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -108,17 +99,14 @@ onMounted(() => {
         <div
           v-for="language in languages"
           :key="language.code"
-          @click="() => handleLanguageChange(language.code)"
-          :class="[
-            'gtb-dropdown-item',
-            { 'gtb-dropdown-item-active': currentLanguage === language.code },
-          ]">
+          :class="['gtb-dropdown-item', { 'gtb-dropdown-item-active': currentLanguage === language.code }]"
+          @click="() => handleLanguageChange(language.code)">
           <img
-              class="gtb-flag"
-              :src="`https://flagcdn.com/${language.flag}.svg`"
-              :alt="`${language.name} flag`"
-              loading="lazy"
-              @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
+            class="gtb-flag"
+            :src="`https://flagcdn.com/${language.flag}.svg`"
+            :alt="`${language.name} flag`"
+            loading="lazy"
+            @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
           <span class="gtb-language-name">{{ language.nativeName }}</span>
           <svg
             v-if="currentLanguage === language.code"
@@ -188,7 +176,9 @@ onMounted(() => {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   min-width: 12rem;
   max-height: 20rem;
   overflow-y: auto;
@@ -227,7 +217,9 @@ onMounted(() => {
 
 .gtb-dropdown-enter-active,
 .gtb-dropdown-leave-active {
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 
 .gtb-dropdown-enter-from,

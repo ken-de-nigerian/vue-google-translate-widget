@@ -1,0 +1,43 @@
+name: Bug report
+description: Something doesn't work the way the docs say it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: A StackBlitz link or the smallest component that shows the problem.
+      render: vue
+    validations:
+      required: true
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: 1.0.2
+    validations:
+      required: true
+  - type: input
+    id: vue-version
+    attributes:
+      label: Vue / Nuxt version
+      placeholder: Vue 3.5.13, Nuxt 3.15
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 131 on macOS
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      render: shell

@@ -20,13 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
   showFlags: true,
 })
 
-const {
-  currentLanguage,
-  isChangingLanguage,
-  languages,
-  changeLanguage,
-  initializeTranslate,
-} = useGoogleTranslate({
+const { currentLanguage, isChangingLanguage, languages, changeLanguage, initializeTranslate } = useGoogleTranslate({
   defaultLanguage: props.defaultLanguage,
   includedLanguages: props.includedLanguages,
   languages: props.languages,
@@ -44,7 +38,7 @@ const filteredLanguages = computed(() => {
     lang =>
       lang.name.toLowerCase().includes(query) ||
       lang.nativeName.toLowerCase().includes(query) ||
-      lang.code.toLowerCase().includes(query)
+      lang.code.toLowerCase().includes(query),
   )
 })
 
@@ -76,10 +70,10 @@ onMounted(() => {
     <!-- Floating Button -->
     <button
       v-if="!isOpen"
-      @click="toggleWidget"
       class="gtw-float-button"
       :aria-label="isOpen ? 'Close translate widget' : 'Open translate widget'"
-      :aria-expanded="isOpen">
+      :aria-expanded="isOpen"
+      @click="toggleWidget">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -108,7 +102,7 @@ onMounted(() => {
               <h2 class="gtw-modal-title">{{ title }}</h2>
               <p class="gtw-modal-subtitle">{{ subtitle }}</p>
             </div>
-            <button @click="closeWidget" class="gtw-close-button" aria-label="Close">
+            <button class="gtw-close-button" aria-label="Close" @click="closeWidget">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -128,11 +122,7 @@ onMounted(() => {
           <div class="gtw-modal-body">
             <!-- Search Bar -->
             <div class="gtw-search-wrapper">
-              <input
-                type="text"
-                :placeholder="searchPlaceholder"
-                v-model="searchQuery"
-                class="gtw-search-input" />
+              <input v-model="searchQuery" type="text" :placeholder="searchPlaceholder" class="gtw-search-input" />
               <svg
                 class="gtw-search-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -158,25 +148,23 @@ onMounted(() => {
               <div
                 v-for="language in filteredLanguages"
                 :key="language.code"
-                @click="() => handleLanguageChange(language.code)"
                 :class="[
                   'gtw-language-item',
                   {
                     'gtw-language-active': currentLanguage === language.code,
                     'gtw-language-disabled': isChangingLanguage,
                   },
-                ]">
+                ]"
+                @click="() => handleLanguageChange(language.code)">
                 <div class="gtw-language-content">
                   <div v-if="showFlags" class="gtw-flag-wrapper">
                     <img
-                        class="gtw-flag"
-                        :src="`https://flagcdn.com/${language.flag}.svg`"
-                        :alt="`${language.name} flag`"
-                        loading="lazy"
-                        @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
-                    <div
-                        v-if="currentLanguage === language.code && !isChangingLanguage"
-                      class="gtw-check-badge">
+                      class="gtw-flag"
+                      :src="`https://flagcdn.com/${language.flag}.svg`"
+                      :alt="`${language.name} flag`"
+                      loading="lazy"
+                      @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
+                    <div v-if="currentLanguage === language.code && !isChangingLanguage" class="gtw-check-badge">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="10"
@@ -190,9 +178,7 @@ onMounted(() => {
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     </div>
-                    <div
-                      v-if="isChangingLanguage && currentLanguage === language.code"
-                      class="gtw-loading-badge">
+                    <div v-if="isChangingLanguage && currentLanguage === language.code" class="gtw-loading-badge">
                       <div class="gtw-spinner"></div>
                     </div>
                   </div>
@@ -269,7 +255,9 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   z-index: 9999;
 }
 
@@ -301,7 +289,9 @@ onMounted(() => {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .gtw-modal-header {
@@ -535,7 +525,9 @@ onMounted(() => {
 
 .gtw-modal-enter-active .gtw-modal,
 .gtw-modal-leave-active .gtw-modal {
-  transition: transform 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
 }
 
 .gtw-modal-enter-from,

@@ -284,6 +284,9 @@ import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
 
 ### Dark Mode Support
 
+There's no built-in dark mode yet (planned for 1.2.0, see [ROADMAP.md](ROADMAP.md)). Until then you can style the
+components yourself with global CSS:
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'

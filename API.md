@@ -478,6 +478,6 @@ Ensure you have the correct package versions:
 
 ## Support
 
-- [GitHub Issues](https://github.com/ken_de_nigerian/vue-google-translate-widget/issues)
-- [Documentation](https://github.com/ken_de_nigerian/vue-google-translate-widget)
+- [GitHub Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
+- [Documentation](https://github.com/ken-de-nigerian/vue-google-translate-widget)
 - [npm Package](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)

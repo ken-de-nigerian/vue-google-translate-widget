@@ -25,6 +25,9 @@ export interface UseGoogleTranslateReturn {
 
 declare global {
   interface Window {
+    // Kept as `any` on purpose: a narrower type here would conflict with other
+    // libraries that also declare `window.google` (e.g. @types/google.maps).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     google: any
     googleTranslateElementInit: () => void
   }
@@ -143,12 +146,7 @@ const DEFAULT_LANGUAGES: Language[] = [
 ]
 
 export function useGoogleTranslate(options: UseGoogleTranslateOptions = {}): UseGoogleTranslateReturn {
-  const {
-    defaultLanguage = 'en',
-    languages = DEFAULT_LANGUAGES,
-    includedLanguages,
-    autoDisplay = false,
-  } = options
+  const { defaultLanguage = 'en', languages = DEFAULT_LANGUAGES, includedLanguages, autoDisplay = false } = options
 
   const currentLanguage = ref('en')
   const isChangingLanguage = ref(false)
@@ -170,7 +168,7 @@ export function useGoogleTranslate(options: UseGoogleTranslateOptions = {}): Use
 
     // Check cookies
     const cookies = document.cookie.split(';')
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
       const parts = cookie.trim().split('=')
       if (parts[0] === 'googtrans') {
         const value = decodeURIComponent(parts[1])
@@ -201,7 +199,7 @@ export function useGoogleTranslate(options: UseGoogleTranslateOptions = {}): Use
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay,
         },
-        'google_translate_element'
+        'google_translate_element',
       )
     }
   }
