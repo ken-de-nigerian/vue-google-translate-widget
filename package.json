@@ -127,7 +127,7 @@
     "vite-plugin-dts": "^4.0.0",
     "vitepress": "^1.6.4",
     "vitepress-plugin-mermaid": "^2.0.17",
-    "vitest": "^3.2.7",
+    "vitest": "^5.0.5",
     "vue": "^3.4.0",
     "vue-tsc": "^2.1.0"
   },
