@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Pinned on purpose: 2.5's attachTo needs Vue 3.5, and CI tests Vue 3.3 and 3.4 too.
+      - dependency-name: '@vue/test-utils'
+        versions: ['>=2.5.0']
     groups:
       dev-dependencies:
         dependency-type: development
