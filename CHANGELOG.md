@@ -3,9 +3,48 @@
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Planned work is in [ROADMAP.md](ROADMAP.md).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Planned work is in [ROADMAP.md](https://github.com/ken-de-nigerian/vue-google-translate-widget/blob/main/ROADMAP.md).
 
 ## Unreleased
+
+## 2.0.0 - 2026-11-02
+
+The platform release: translation providers, an app-wide plugin, a Nuxt module, server handlers, and a
+documentation website. See the [Upgrade Guide](https://ken-de-nigerian.github.io/vue-google-translate-widget/upgrade-guide); most apps need no code changes.
+
+### Breaking
+
+- `GoogleTranslateButton`'s deprecated `languageChanged` event was removed: use `change`.
+- Flags are off by default (`showFlags: false`). Add `show-flags` to keep them.
+- `theme` defaults to `'auto'` (follows `html.dark` / `html.light`, then the OS setting). Use `theme="light"` for
+  1.x's look.
+- The stylesheet is only exported as `…/style.css` (the `…/dist/style.css` path was removed).
+- The UMD build was removed. ESM (`dist/index.js`) and CommonJS (`dist/index.cjs`) remain; `main` now points to
+  `dist/index.cjs`.
+
+### Added
+
+- **Translation providers:** `provider` option with a built-in DOM translation engine (batching, de-duplication,
+  `localStorage` cache, follows content rendered later, instant restore). `endpointProvider({ url })` for your own
+  server, `libreTranslate({ url })` for a LibreTranslate server. `createDomTranslator`, `memoryCache`,
+  `localStorageCache` for advanced use.
+- **Server handlers** (`…/server`): `createTranslateHandler` (Fetch-standard, input validation, size limits,
+  `allowedTargets`, upstream errors never sent to the browser) with `deepl`, `googleCloud`, `azure` and
+  `libreTranslateServer` backends.
+- **Plugin:** `createGoogleTranslate(config)` sets app-wide defaults for every component and composable; props and
+  options still win.
+- **Nuxt module** (`…/nuxt`): auto-imports, stylesheet, server rendering of the saved language (cookie or
+  `?lang=`), `v-no-translate` registered globally.
+- **`onTranslate`** hook for analytics, **`autoTranslate`** on the first visit, **`queryParameter`** for
+  shareable `?lang=fr` links, **`initialLanguage`** for SSR.
+- `pageLanguage` on the composable's return value.
+- Documentation website (VitePress, with a live demo) and 24 documentation chapters in `docs/`.
+
+### Fixed
+
+- `v-no-translate` no longer causes a hydration class mismatch: it renders only `translate="no"` on the server
+  (found while testing the Nuxt module).
+- Server-side rendering no longer shares translation state between requests.
 
 ## 1.2.0 - 2026-11-02
 

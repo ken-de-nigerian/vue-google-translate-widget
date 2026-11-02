@@ -19,11 +19,16 @@ export function stubReload() {
 }
 
 // Unmount every component a test mounted, so its listeners and scroll lock go too.
-enableAutoUnmount(afterEach)
+if (typeof document !== 'undefined') enableAutoUnmount(afterEach)
 
 afterEach(() => {
-  resetLoader()
   resetTranslateState()
+  vi.unstubAllGlobals()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  // Server-side tests run without a DOM.
+  if (typeof document === 'undefined') return
+  resetLoader()
   stopDirectionSync()
   document.documentElement.removeAttribute('dir')
   window.localStorage.clear()
@@ -33,7 +38,4 @@ afterEach(() => {
   document.body.removeAttribute('style')
   document.documentElement.className = ''
   window.history.replaceState(null, '', '/')
-  vi.unstubAllGlobals()
-  vi.useRealTimers()
-  vi.restoreAllMocks()
 })

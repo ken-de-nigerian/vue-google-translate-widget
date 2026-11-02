@@ -19,5 +19,7 @@ const apply = (el: HTMLElement, enabled: unknown) => {
 export const vNoTranslate: ObjectDirective<HTMLElement, boolean | undefined> = {
   mounted: (el, binding) => apply(el, binding.value),
   updated: (el, binding) => apply(el, binding.value),
-  getSSRProps: binding => (binding.value === false ? {} : { translate: 'no', class: 'notranslate' }),
+  // Only the attribute on the server: Google honours translate="no" by itself, and Vue checks the whole `class`
+  // during hydration, so adding "notranslate" there would be reported as a hydration mismatch.
+  getSSRProps: binding => (binding.value === false ? {} : { translate: 'no' }),
 }

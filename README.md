@@ -3,538 +3,186 @@
 [![npm version](https://img.shields.io/npm/v/@ken_de_nigerian/vue-google-translate-widget.svg?style=flat-square)](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
 [![npm downloads](https://img.shields.io/npm/dm/@ken_de_nigerian/vue-google-translate-widget.svg?style=flat-square)](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
 [![Tests](https://github.com/ken-de-nigerian/vue-google-translate-widget/actions/workflows/tests.yml/badge.svg)](https://github.com/ken-de-nigerian/vue-google-translate-widget/actions/workflows/tests.yml)
-[![Bundle size](https://img.shields.io/bundlejs/size/@ken_de_nigerian/vue-google-translate-widget?style=flat-square)](https://bundlejs.com/?q=@ken_de_nigerian/vue-google-translate-widget)
+[![Docs](https://img.shields.io/badge/docs-website-3b82f6?style=flat-square)](https://ken-de-nigerian.github.io/vue-google-translate-widget/)
 [![Types](https://img.shields.io/npm/types/@ken_de_nigerian/vue-google-translate-widget.svg?style=flat-square)](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
-A lightweight, customizable Vue 3 component and composable library for integrating Google Translate into your Vue applications. Supports 100+ languages with a clean, ready-made UI.
+**[Documentation website](https://ken-de-nigerian.github.io/vue-google-translate-widget/)** (try the live demo:
+the site translates itself) · [Quick Start](docs/quick-start.md) · [Nuxt](docs/nuxt.md) ·
+[API Reference](docs/api-reference.md)
 
-## Features
+## What is it?
 
-- 🌍 **100+ Languages** - Native names, searchable, with codes checked against Google's live widget
-- ⚡ **No page reloads** - Switches language in place and restores the original the same way
-- ♿ **Accessible** - Keyboard navigation, focus management and ARIA roles, checked with axe-core in CI
-- 🧹 **Clean page** - Google's banner, tooltips and highlight are hidden for you (`hideBranding`)
-- 🎨 **Customizable UI** - Light/dark/auto themes, CSS custom properties, slots, an unstyled mode, or the composable
-- ↔️ **RTL-aware** - Sets `<html dir="rtl">` for Arabic, Hebrew, Persian, Urdu and other right-to-left languages
-- 💡 **Smart extras** - Pinned and recently used languages, a "View this page in …?" browser-language prompt,
-  lazy loading, emoji flags, and a `v-no-translate` directive
-- 🪝 **Vue 3 Composable** - Shared, reactive state: current language, loading status, errors
-- 💪 **TypeScript** - Fully typed
-- 🎯 **Zero Dependencies** - Only requires Vue 3 (flag images load from `flagcdn.com`; see `flagUrl` / `showFlags`)
-- 📦 **Small Bundle** - About 11 kB of JavaScript and 2.5 kB of CSS (brotli) for everything, checked in CI
-- 🎭 **SSR-safe** - Google's script only loads in the browser, on mount; use a client-only plugin in Nuxt
+Making a site readable in many languages usually means maintaining translations. For a lot of sites (blogs, docs,
+shops, community and government sites) machine translation of the rendered page is good enough, and Google's free
+Website Translator does it. Used raw, though, it's a 2009-era widget: an unstyled dropdown, a banner that pushes your
+page down, reloads, no Vue state, no keyboard support, and a single point of failure.
 
-> **Roadmap:** a Nuxt module, an app-wide plugin and pluggable translation providers are planned for 2.0.
-> See [ROADMAP.md](ROADMAP.md).
+This package gives you that translation behind **a polished, accessible Vue component**:
 
-## Installation
+```vue
+<script setup>
+import { GoogleTranslateWidget } from '@ken_de_nigerian/vue-google-translate-widget'
+import '@ken_de_nigerian/vue-google-translate-widget/style.css'
+</script>
+
+<template>
+  <GoogleTranslateWidget :included-languages="['en', 'fr', 'de', 'yo', 'ig', 'ha']" />
+</template>
+```
+
+The visitor picks a language and the page is translated **in place**, without reloading. The choice is remembered
+across pages. Google's banner is hidden, right-to-left languages get `dir="rtl"`, and your brand names stay as they
+are.
+
+And if you'd rather not depend on Google's free widget, swap it for **DeepL, Google Cloud, Azure or
+LibreTranslate**, with the API key kept on your server. The components and API stay the same.
+
+## Is this for you?
+
+A good fit if you want:
+
+- a language switcher for a Vue 3 or Nuxt site, translating content you don't want to translate by hand;
+- it to be accessible, themeable and work with SSR;
+- the option to move off Google's free widget later without changing your UI.
+
+**Not** a fit if you need reviewed, hand-written translations, pluralisation or locale-aware formatting: that's
+[vue-i18n](https://vue-i18n.intlify.dev/). Machine-translated pages are also not indexed by search engines in other
+languages, so this isn't a multilingual SEO solution. Many sites use both: vue-i18n for the UI chrome, this package
+for everything else.
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    A[Widget / Button / your UI] --> B[useGoogleTranslate]
+    B --> C{Engine}
+    C -->|default| D[Google's Website Translator<br/>loaded once, hidden]
+    C -->|provider option| E[Built-in DOM engine]
+    E --> F[Your server: DeepL / Google Cloud /<br/>Azure / LibreTranslate]
+    D & E --> G[Page translated in place]
+    B --> H[googtrans cookie + optional ?lang=]
+```
+
+The full walkthrough, including what it can't do, is in [How It Works](docs/how-it-works.md).
+
+## Quick Start
 
 ```bash
 npm install @ken_de_nigerian/vue-google-translate-widget
 ```
 
-or
+**Vue:** drop in a component (above), or set defaults once for the whole app:
 
-```bash
-yarn add @ken_de_nigerian/vue-google-translate-widget
+```ts
+import { createGoogleTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
+import '@ken_de_nigerian/vue-google-translate-widget/style.css'
+
+app.use(createGoogleTranslate({ defaultLanguage: 'en', includedLanguages: ['fr', 'de', 'es'] }))
 ```
 
-or
-
-```bash
-pnpm add @ken_de_nigerian/vue-google-translate-widget
-```
-
-## Quick Start
-
-### Using the Widget Component (Recommended)
-
-The easiest way to get started is with the `GoogleTranslateWidget` component:
-
-```vue
-<script setup>
-import { GoogleTranslateWidget } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
-</script>
-
-<template>
-  <GoogleTranslateWidget />
-</template>
-```
-
-### Using the Button Component
-
-For a more compact dropdown button:
-
-```vue
-<script setup>
-import { GoogleTranslateButton } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
-</script>
-
-<template>
-  <GoogleTranslateButton />
-</template>
-```
-
-### Using the Composable
-
-For complete control, use the `useGoogleTranslate` composable:
-
-```vue
-<script setup>
-import { useGoogleTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
-import { onMounted } from 'vue'
-
-const {
-  currentLanguage,
-  isChangingLanguage,
-  languages,
-  changeLanguage,
-  initializeTranslate
-} = useGoogleTranslate()
-
-onMounted(() => {
-  initializeTranslate()
-})
-</script>
-
-<template>
-  <select
-    :value="currentLanguage"
-    :disabled="isChangingLanguage"
-    @change="e => changeLanguage(e.target.value)">
-    <option v-for="lang in languages" :key="lang.code" :value="lang.code">
-      {{ lang.nativeName }}
-    </option>
-  </select>
-</template>
-```
-
-You don't need to add any hidden element: the package creates one hidden host for Google and shares it between
-every component and composable on the page.
-
-## Theming
-
-Set any of these CSS custom properties on `:root` (or any ancestor). They apply to both components and both themes;
-scope them under your own dark selector to change only dark mode.
-
-| Property | Light default | Used for |
-|----------|---------------|----------|
-| `--gtw-color-primary` | `#3b82f6` | Floating button, active border, focus rings |
-| `--gtw-color-primary-hover` | `#2563eb` | Hover |
-| `--gtw-color-primary-text` | `#2563eb` | Text of the current language |
-| `--gtw-color-on-primary` | `#ffffff` | Icons on the primary colour |
-| `--gtw-color-bg` / `--gtw-color-text` | `#ffffff` / `#111827` | Panels |
-| `--gtw-color-surface` / `--gtw-color-surface-strong` | `#f9fafb` / `#f3f4f6` | Hover and badges |
-| `--gtw-color-border` / `--gtw-color-border-strong` | `#e5e7eb` / `#d1d5db` | Borders |
-| `--gtw-color-text-muted` / `--gtw-color-text-subtle` | `#4b5563` / `#9ca3af` | Secondary text, icons |
-| `--gtw-color-active-bg` | `rgba(59,130,246,.08)` | Current language background |
-| `--gtw-color-overlay` | `rgba(0,0,0,.5)` | Modal backdrop |
-| `--gtw-color-error-bg` / `--gtw-color-error-text` | `#fef2f2` / `#991b1b` | Error message |
-| `--gtw-radius` | `1rem` | Modal corners |
-| `--gtw-shadow` | | Modal and prompt shadow |
-| `--gtw-font` | system UI stack | Font |
-| `--gtw-z-index` | `9999` | Floating button (the modal sits one above) |
-| `--gtw-offset` | `1rem` / `1.5rem` | Floating button distance from the corner |
-
-```css
-:root {
-  --gtw-color-primary: #16a34a;
-  --gtw-radius: 0.5rem;
-}
-```
-
-For full control, pass `unstyled` and style the `gtw-*` / `gtb-*` classes yourself (see [API.md](./API.md)).
-
-## Keeping Text Untranslated
-
-Brand names, code and addresses shouldn't be machine-translated. Use the directive:
-
-```vue
-<script setup>
-import { vNoTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
-</script>
-
-<template>
-  <span v-no-translate>PayZephyr</span>
-</template>
-```
-
-It adds `translate="no"` and `class="notranslate"` (also during SSR). `v-no-translate="false"` turns it off.
-
-## Google's Branding
-
-Google's widget adds a banner at the top of the page (pushing your layout down by 40px), hover tooltips and a
-highlight on translated text. **These are hidden automatically**: the package injects one small stylesheet the first
-time it loads. Pass `:hide-branding="false"` (or `hideBranding: false` to the composable) to keep Google's UI.
-
-Google changes its class names from time to time, so this is best effort. If something reappears after a Google
-update, please [open an issue](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues) with a
-screenshot.
-
-## Component Props
-
-Both components accept these:
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `defaultLanguage` | `string` | `'en'` | The language your page is written in |
-| `includedLanguages` | `string[]` | all | Language codes to offer (reactive) |
-| `languages` | `Language[]` | built-in list | Your own language list (reactive) |
-| `language` | `string` | | Current language, for `v-model:language` |
-| `errorText` | `string` | `'Translation is unavailable right now…'` | Shown if Google can't load |
-| `showFlags` | `boolean` | `true` | Show flags (or a code badge when a language has none) |
-| `flagUrl` | `(flag: string) => string` | flagcdn.com | Where flag images come from, e.g. your own CDN |
-| `mode` | `'live' \| 'reload'` | `'live'` | Translate in place, or reload the page like 1.0 did |
-| `reloadOnRestore` | `boolean` | `false` | Reload instead of restoring the original text in place |
-| `hideBranding` | `boolean` | `true` | Hide Google's banner, tooltips and highlight |
-| `scriptSrc` | `string` | Google's URL | Load Google's script from somewhere else (e.g. a proxy) |
-| `nonce` | `string` | | CSP nonce for the injected `<script>` and `<style>` |
-| `timeout` | `number` | `10000` | Milliseconds to wait for Google before showing the error |
-| `theme` | `'light' \| 'dark' \| 'auto'` | `'light'` | `auto` follows `html.dark` / `html.light`, then the OS setting |
-| `unstyled` | `boolean` | `false` | Render without styles, for styling from scratch |
-| `display` | `'native' \| 'english' \| 'both'` | Widget `'both'`, Button `'native'` | Which language names to show |
-| `pinned` | `string[]` | | Codes to list first, in this order |
-| `rememberRecent` | `boolean \| number` | `false` | Remember recent choices (localStorage) and list them first; `true` keeps 3 |
-| `flagStyle` | `'image' \| 'emoji'` | `'image'` | Emoji flags need no network requests |
-| `lazy` | `boolean` | `false` | Load Google only on first open (or immediately if a saved translation must be applied) |
-| `syncDocumentDir` | `boolean` | `true` | Set `<html dir="rtl">` while showing a right-to-left language |
-
-### GoogleTranslateWidget
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | `'Change Language'` | Modal title |
-| `subtitle` | `string` | `'Select your preferred language for the interface'` | Modal subtitle |
-| `searchPlaceholder` | `string` | `'Search languages...'` | Search placeholder (also its accessible label) |
-| `position` | `'bottom-left' \| 'bottom-right' \| 'top-left' \| 'top-right'` | `'bottom-left'` | Corner for the floating button |
-| `offset` | `string` | `1rem` (`1.5rem` from 768px) | Distance from the corner, any CSS length |
-| `suggestBrowserLanguage` | `boolean` | `false` | Offer "View this page in …?" in the visitor's browser language |
-| `labels` | `Partial<WidgetLabels>` | English | Every other piece of text: `open`, `close`, `noResults`, `noResultsHint`, `results(n)`, `suggestion(lang)`, `accept`, `dismiss` |
-
-### GoogleTranslateButton
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `buttonText` | `string` | `'Translate'` | Button text |
-| `buttonClass` | `string` | `undefined` | Additional CSS classes |
-
-### Events
-
-Both components emit:
-
-| Event | Payload | When |
-|-------|---------|------|
-| `change` | `language: string` | After Google has applied a new language |
-| `update:language` | `language: string` | Same, for `v-model:language` (also on load if the page is already translated) |
-| `ready` | | Google's script has loaded |
-| `error` | `error: Error` | Google couldn't load, or a language change failed |
-| `open` / `close` | | The modal or dropdown opened / closed |
-
-`GoogleTranslateButton` also still emits `languageChanged` (deprecated, use `change`; removed in 2.0).
-
-```vue
-<GoogleTranslateButton @change="lang => analytics.track('language', { lang })" />
-```
-
-### Slots
-
-| Component | Slot | Props | Replaces |
-|-----------|------|-------|----------|
-| Widget | `trigger` | `isOpen`, `currentLanguage` | The floating button's icon |
-| Widget | `header` | `close`, `titleId` | Title and subtitle (put `:id="titleId"` on your heading) |
-| Widget | `empty` | `query` | The "no results" message |
-| Widget | `footer` | `close` | Nothing: adds a footer below the list |
-| Button | default | `isOpen`, `currentLanguage`, `current` | The button's icon, text and chevron |
-| Both | `item` | `language`, `selected`, `active` | Each option's content (the option keeps its role and keyboard support) |
-
-```vue
-<GoogleTranslateButton>
-  <template #default="{ current }">🌐 {{ current?.nativeName ?? 'Language' }}</template>
-</GoogleTranslateButton>
-```
-
-### Keyboard
-
-| Key | Widget (search box focused) | Button (list focused) |
-|-----|-----------------------------|-----------------------|
-| `↓` / `↑` | Move through the results | Open the list / move through it |
-| `Home` / `End` | First / last result | First / last language |
-| `Enter` | Choose | Choose |
-| `Space` | (types a space) | Choose |
-| `Esc` | Close, focus back on the button | Close, focus back on the button |
-| `Tab` | Stays inside the dialog | Closes the list |
-
-## Composable Options
-
-### useGoogleTranslate(options?)
-
-```typescript
-interface UseGoogleTranslateOptions {
-  defaultLanguage?: string                              // 'en'
-  languages?: MaybeRefOrGetter<Language[] | undefined>   // reactive
-  includedLanguages?: MaybeRefOrGetter<string[] | undefined> // reactive
-  autoDisplay?: boolean                                 // false
-  mode?: 'live' | 'reload'                              // 'live'
-  reloadOnRestore?: boolean                             // false
-  hideBranding?: boolean                                // true
-  scriptSrc?: string
-  nonce?: string
-  timeout?: number                                      // 10000
-  syncDocumentDir?: boolean                             // true
-}
-```
-
-**Returns:**
-
-```typescript
-interface UseGoogleTranslateReturn {
-  currentLanguage: Ref<string>          // shared by every instance on the page
-  isChangingLanguage: Ref<boolean>
-  languages: Language[]                 // reactive array
-  status: Ref<'idle' | 'loading' | 'ready' | 'error'>
-  error: Ref<Error | null>
-  isReady: ComputedRef<boolean>
-  changeLanguage: (lang: string) => Promise<void>  // rejects if Google can't apply it
-  restoreOriginal: () => Promise<void>
-  initializeTranslate: () => Promise<void>         // never rejects; check status/error
-  getCurrentLanguage: () => string
-}
-```
-
-See [API.md](./API.md) for details.
-
-## Examples
-
-### Limit Languages
-
-Only show specific languages:
-
-```vue
-<template>
-  <GoogleTranslateWidget 
-    :includedLanguages="['en', 'es', 'fr', 'de', 'zh-CN']" 
-  />
-</template>
-```
-
-### Custom Styling
-
-Override default styles:
-
-```vue
-<template>
-  <GoogleTranslateButton 
-    buttonClass="my-custom-button"
-    buttonText="🌍 Language"
-  />
-</template>
-
-<style>
-.my-custom-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-}
-</style>
-```
-
-### Listen to Language Changes
-
-```vue
-<script setup>
-const handleLanguageChange = (language) => {
-  console.log('Language changed to:', language)
-  // Send analytics, update user preferences, etc.
-}
-</script>
-
-<template>
-  <GoogleTranslateButton @change="handleLanguageChange" />
-</template>
-```
-
-### Two-way Binding
-
-```vue
-<script setup>
-import { ref } from 'vue'
-const language = ref('en')
-</script>
-
-<template>
-  <GoogleTranslateWidget v-model:language="language" />
-  <button @click="language = 'fr'">Français</button>
-</template>
-```
-
-### With Nuxt 3
-
-Create a plugin to register globally:
-
-```javascript
-// plugins/google-translate.client.js
-import { GoogleTranslateWidget, GoogleTranslateButton } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.component('GoogleTranslateWidget', GoogleTranslateWidget)
-  nuxtApp.vueApp.component('GoogleTranslateButton', GoogleTranslateButton)
+**Nuxt:** add the module; components and the composable are auto-imported, and the visitor's language is rendered
+on the server:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@ken_de_nigerian/vue-google-translate-widget/nuxt'],
+  googleTranslate: { includedLanguages: ['en', 'fr', 'de'] },
 })
 ```
 
-Then use anywhere:
+**Your own UI:** use the composable:
 
-```vue
-<template>
-  <GoogleTranslateWidget />
-</template>
+```ts
+const { currentLanguage, languages, changeLanguage, initializeTranslate } = useGoogleTranslate()
 ```
 
-## Language Codes
+More in the [Quick Start](docs/quick-start.md).
 
-The package includes 100+ languages. Here are some common ones:
+## What you get
 
-| Language | Code | Language | Code |
-|----------|------|----------|------|
-| English | `en` | Spanish | `es` |
-| French | `fr` | German | `de` |
-| Chinese (Simplified) | `zh-CN` | Chinese (Traditional) | `zh-TW` |
-| Japanese | `ja` | Korean | `ko` |
-| Arabic | `ar` | Russian | `ru` |
-| Portuguese | `pt` | Italian | `it` |
-| Hindi | `hi` | Turkish | `tr` |
+| | |
+| --- | --- |
+| ⚡ **No reloads** | Translates in place; restoring the original is instant; the choice persists |
+| ♿ **Accessible** | A real dialog and listbox, full keyboard support, focus management, announcements; axe-checked in CI |
+| 🔌 **Not locked to Google** | DeepL, Google Cloud, Azure, LibreTranslate or your own API, keys kept server-side |
+| 🟢 **Nuxt module** | Auto-imports, SSR of the saved language, `?lang=` links, no hydration mismatches |
+| 🎨 **Yours to style** | Light/dark/auto, 17 CSS custom properties, slots, or fully unstyled |
+| ↔️ **RTL** | `dir="rtl"` for Arabic, Hebrew, Persian, Urdu and more |
+| 🧠 **Smart extras** | Pinned and recent languages, browser-language prompt or auto-translate, emoji flags, lazy loading, `v-no-translate` |
+| 📈 **Analytics hook** | `onTranslate` for GA4, Plausible, PostHog |
+| 📦 **Small** | ~11 kB for the Widget, ~6.6 kB headless (brotli); no runtime dependencies |
+| 🧪 **Tested** | 235 tests, Vue 3.3–3.5, a real Nuxt build in CI, and a weekly check against Google's live widget |
 
-See [API.md](./API.md) for the complete language list.
+## Documentation
 
-Google's widget still uses the legacy codes **`iw`** for Hebrew and **`jw`** for Javanese. The built-in list uses
-those, and `he` / `jv` are accepted everywhere and converted for you.
+**Getting started**
 
-## How It Works
+1. [Installation](docs/installation.md)
+2. [Quick Start](docs/quick-start.md)
+3. [Nuxt](docs/nuxt.md): the module, server rendering, `?lang=` links
+4. [How It Works](docs/how-it-works.md): what happens when a visitor picks a language, and the limits
 
-This package drives Google's free Website Translator for you:
+**Components and API**
 
-1. Google's script is loaded once per page into a hidden element (shared by every component).
-2. When a user picks a language, the package sets Google's own language selector, and Google translates the page
-   **in place**: no reload. The choice is stored in the `googtrans` cookie, so it survives navigation and reloads.
-3. Choosing the page's original language clicks Google's own "Show original" button, again without a reload.
-4. Elements with `class="notranslate"` or `translate="no"` are left alone (the language names in the UI use this).
+5. [GoogleTranslateWidget](docs/widget.md)
+6. [GoogleTranslateButton](docs/button.md)
+7. [useGoogleTranslate](docs/composable.md)
+8. [Plugin](docs/plugin.md): configure once; auto-translate
+9. [v-no-translate](docs/directive.md)
 
-**Note:** This translates the entire page content with machine translation. For hand-curated, app-specific
-translations, use vue-i18n instead.
+**Customising**
 
-## Browser Support
+10. [Theming](docs/theming.md)
+11. [Languages & Flags](docs/languages.md)
+12. [Right-to-Left](docs/rtl.md)
 
-- Chrome/Edge: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Mobile browsers: ✅ Full support
+**Behaviour**
 
-## TypeScript
+13. [Live vs Reload](docs/live-vs-reload.md)
+14. [Events & Analytics](docs/events-and-analytics.md)
 
-The package is written in TypeScript and includes full type definitions:
+**Going further**
 
-```typescript
-import type { 
-  Language, 
-  UseGoogleTranslateOptions, 
-  UseGoogleTranslateReturn 
-} from '@ken_de_nigerian/vue-google-translate-widget'
-```
+15. [Translation Providers](docs/providers.md): DeepL, Google Cloud, Azure, LibreTranslate, your own
+16. [Server Handlers](docs/server-handlers.md): Nuxt, Next.js, Hono, Express, Laravel
 
-## Development
+**Shipping it**
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, scripts and the release process.
+17. [Performance](docs/performance.md)
+18. [CSP & Privacy](docs/csp-and-privacy.md)
+19. [Production Checklist](docs/production-checklist.md)
 
-### Project Structure
+**When things go wrong**
 
-```
-vue-google-translate-widget/
-├── src/
-│   ├── components/
-│   │   ├── GoogleTranslateButton.vue
-│   │   └── GoogleTranslateWidget.vue
-│   ├── composables/
-│   │   └── useGoogleTranslate.ts
-│   └── index.ts
-├── tests/                   (Vitest + happy-dom)
-├── dist/                    (generated by build)
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
-```
+20. [Troubleshooting](docs/troubleshooting.md)
+21. [FAQ](docs/faq.md)
 
-### Building from Source
+**Reference**
 
-```bash
-# Clone the repository
-git clone https://github.com/ken-de-nigerian/vue-google-translate-widget.git
-cd vue-google-translate-widget
+22. [API Reference](docs/api-reference.md)
+23. [Architecture](docs/architecture.md)
+24. [Upgrade Guide](docs/upgrade-guide.md): 1.x → 2.0
+25. [Contributing](CONTRIBUTING.md)
 
-# Install dependencies
-npm install
+The same chapters, with search and a live demo, are on the
+**[documentation website](https://ken-de-nigerian.github.io/vue-google-translate-widget/)**.
 
-# Run the tests, then build the package
-npm test
-npm run build
-```
+## Changelog
 
-## Troubleshooting
-
-### TypeScript Errors During Build
-
-If you encounter TypeScript errors when building, ensure you have compatible package versions installed:
-
-```bash
-npm install --save-dev vue@^3.4.0 vue-tsc@^2.1.0 typescript@^5.5.0
-```
-
-### Windows Permission Issues
-
-On Windows, if you get `EPERM` errors during installation:
-
-1. Close all Node.js processes
-2. Delete `node_modules` and `package-lock.json`
-3. Run `npm cache clean --force`
-4. Reinstall: `npm install`
-
-### Google Translate Branding Still Showing
-
-Branding is hidden automatically unless you set `hideBranding: false`. If Google has changed its markup and
-something shows again, inspect it in DevTools, hide it with your own global CSS for now, and please
-[open an issue](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues).
-
-### "Translation is unavailable right now"
-
-Google's script didn't load within `timeout` ms. Common causes: an ad or privacy blocker, a Content Security Policy
-that doesn't allow `translate.google.com` / `translate.googleapis.com` / `translate-pa.googleapis.com`, or a network
-that blocks Google. Listen for the `error` event to log the reason.
-
-## Contributing
-
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first, and check [ROADMAP.md](ROADMAP.md) for
-what's already planned. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), and report security issues privately
-as described in [SECURITY.md](SECURITY.md).
+[CHANGELOG.md](CHANGELOG.md) has every release; breaking changes and how to handle them are in the
+[Upgrade Guide](docs/upgrade-guide.md). What's next is in [ROADMAP.md](ROADMAP.md).
 
 ## License
 
-MIT © Nwaneri Chukwunyere Kenneth
+MIT. See [LICENSE](LICENSE).
 
 ## Support
 
-- [GitHub Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
-- [Changelog](CHANGELOG.md)
-- [Documentation](https://github.com/ken-de-nigerian/vue-google-translate-widget#readme)
-- [API Reference](./API.md)
-- [Examples](./EXAMPLES.md)
-
-## Links
-
-- [npm Package](https://www.npmjs.com/package/@ken_de_nigerian/vue-google-translate-widget)
-- [GitHub Repository](https://github.com/ken-de-nigerian/vue-google-translate-widget)
-- [Report Issues](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues)
+If this package is useful to you, starring the repository helps other people find it. Bug reports, docs fixes and
+code are welcome: see [Contributing](CONTRIBUTING.md), and please report security issues privately
+([SECURITY.md](SECURITY.md)).
 
 ---
 

@@ -3,3 +3,8 @@ coverage
 node_modules
 package-lock.json
 *.md
+.nuxt
+.output
+playground-nuxt/node_modules
+docs/.vitepress/cache
+docs/.vitepress/dist

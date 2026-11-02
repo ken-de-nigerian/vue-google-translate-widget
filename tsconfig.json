@@ -23,7 +23,9 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      // The Nuxt runtime plugin imports the package by name (so it shares one module instance at runtime).
+      "@ken_de_nigerian/vue-google-translate-widget": ["src/index.ts"]
     },
 
     /* Declaration */

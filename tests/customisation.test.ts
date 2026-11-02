@@ -32,14 +32,14 @@ const nativeNames = (wrapper: ReturnType<typeof mount>, selector: string) =>
   wrapper.findAll(selector).map(n => n.text())
 
 describe('theme and styling', () => {
-  it('defaults to the light theme with styles on', async () => {
+  it('defaults to the auto theme with styles on (2.0)', async () => {
     const widget = await openWidget()
-    expect(widget.classes()).toEqual(expect.arrayContaining(['gtw-theme-light', 'gtw-styled']))
+    expect(widget.classes()).toEqual(expect.arrayContaining(['gtw-theme-auto', 'gtw-styled']))
     const button = await openButton()
-    expect(button.classes()).toEqual(expect.arrayContaining(['gtw-theme-light', 'gtb-styled']))
+    expect(button.classes()).toEqual(expect.arrayContaining(['gtw-theme-auto', 'gtb-styled']))
   })
 
-  it.each(['dark', 'auto'])('applies theme="%s"', async theme => {
+  it.each(['dark', 'light'])('applies theme="%s"', async theme => {
     expect((await openWidget({ theme })).classes()).toContain(`gtw-theme-${theme}`)
     expect((await openButton({ theme })).classes()).toContain(`gtw-theme-${theme}`)
   })
@@ -120,8 +120,13 @@ describe('language display', () => {
 })
 
 describe('flags', () => {
+  it('shows no flags unless asked (2.0)', async () => {
+    expect((await openWidget({ includedLanguages: ['fr'] })).find('.gtw-flag').exists()).toBe(false)
+    expect((await openButton({ includedLanguages: ['fr'] })).find('.gtb-flag').exists()).toBe(false)
+  })
+
   it('renders emoji flags, falling back to a code badge', async () => {
-    const wrapper = await openWidget({ includedLanguages: ['fr', 'eu', 'cy'], flagStyle: 'emoji' })
+    const wrapper = await openWidget({ includedLanguages: ['fr', 'eu', 'cy'], showFlags: true, flagStyle: 'emoji' })
     expect(wrapper.findAll('.gtw-flag-emoji').map(e => e.text())).toEqual([
       '🇫🇷',
       '\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
@@ -131,7 +136,7 @@ describe('flags', () => {
   })
 
   it('renders emoji flags in the Button', async () => {
-    const wrapper = await openButton({ includedLanguages: ['fr'], flagStyle: 'emoji' })
+    const wrapper = await openButton({ includedLanguages: ['fr'], showFlags: true, flagStyle: 'emoji' })
     expect(wrapper.find('.gtb-flag.gtb-flag-emoji').text()).toBe('🇫🇷')
   })
 })

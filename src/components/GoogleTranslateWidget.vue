@@ -66,25 +66,23 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  defaultLanguage: 'en',
   title: 'Change Language',
   subtitle: 'Select your preferred language for the interface',
   searchPlaceholder: 'Search languages...',
   errorText: DEFAULT_ERROR_TEXT,
-  showFlags: true,
+  showFlags: false,
   flagStyle: 'image',
   flagUrl: DEFAULT_FLAG_URL,
   display: 'both',
   rememberRecent: false,
   suggestBrowserLanguage: false,
-  theme: 'light',
+  theme: 'auto',
   unstyled: false,
   position: 'bottom-left',
   lazy: false,
-  mode: 'live',
-  reloadOnRestore: false,
-  hideBranding: true,
-  syncDocumentDir: true,
+  reloadOnRestore: undefined,
+  hideBranding: undefined,
+  syncDocumentDir: undefined,
 })
 
 const emit = defineEmits<{
@@ -118,6 +116,7 @@ const {
   changeLanguage,
   initializeTranslate,
   getCurrentLanguage,
+  pageLanguage,
 } = useGoogleTranslate({
   defaultLanguage: props.defaultLanguage,
   includedLanguages: () => props.includedLanguages,
@@ -276,7 +275,6 @@ watch(
 onMounted(async () => {
   if (recentLimit.value) recentCodes.value = readRecentLanguages()
 
-  const pageLanguage = toGoogleCode(props.defaultLanguage)
   const translated = getCurrentLanguage() !== pageLanguage
 
   if (

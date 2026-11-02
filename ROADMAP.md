@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: Phases 0–2 complete and verified (1.0.2, 1.1.0 and 1.2.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: all phases complete and verified (1.0.2, 1.1.0, 1.2.0 and 2.0.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -270,7 +270,33 @@ Bundle budget raised to 12 kB JS / 3 kB CSS (now 11.2 / 2.5 kB brotli) for the f
 
 ---
 
-## Phase 3: v2.0.0 (platform)
+## Phase 3: v2.0.0 (platform) ✅ done
+
+**Status (2026-11-02):** done, with the deviations and drops listed below and their reasons. Verified with 235 tests
+(including SSR in Node, a provider engine end-to-end through the Widget, and server-handler contract tests); the
+Nuxt module was verified by building a real Nuxt app and checking its SSR output and hydration (now automated in
+CI as `npm run test:nuxt`).
+
+| Item | Status |
+| --- | --- |
+| 3.1 Monorepo with three npm packages | **Changed:** one package with subpath exports (`/server`, `/nuxt`) instead. One version, one release workflow, and no new npm names to register. The core (`src/core`) has no Vue dependency, so a split stays possible. |
+| 3.1 React / Svelte / web component | Not done (they were "later candidates"); still open. |
+| 3.2 Plugin API | ✅ `createGoogleTranslate(config)`; options > plugin > defaults; `false` props beat plugin `true`. |
+| 3.3 Nuxt module | ✅ auto-imports, CSS, client+server plugin, SSR of the cookie language with no hydration mismatch, `?lang=` (`queryParameter`). |
+| 3.3 `/fr/` path strategy | Not done; `?lang=` covers shareable links. |
+| 3.3 `hreflang` generation | **Dropped:** the server renders the original language, so `hreflang` would advertise translations that don't exist in the HTML. Misleading for search engines. |
+| 3.4 Providers | ✅ DOM engine; `endpointProvider` + server backends for DeepL, Google Cloud, Azure, LibreTranslate; `libreTranslate` direct; custom `TranslationProvider`. |
+| 3.4 Cache in IndexedDB | **Changed:** `localStorage` (+ memory), via a `TranslationCache` interface you can replace. Simpler, synchronous, enough for page text. |
+| 3.4 Server recipes | ✅ Nuxt, Next.js, Hono/Workers/Deno/Bun, Express, Laravel in `docs/server-handlers.md`. |
+| 3.4 Paid vendors against live APIs | **Not verified live:** request/response formats are tested against the vendors' documentation with mocked HTTP; no paid keys were available. Said so in the docs. |
+| 3.5 `onTranslate` | ✅ |
+| 3.5 Auto-translate on first visit | ✅ `autoTranslate` (once per browser) |
+| 3.5 Drop UMD/CJS | UMD dropped; CJS kept (no download data to justify dropping it). |
+| 3.5 Vue 3.6 / Vapor | Not done: not stable yet. |
+| Breaking changes batch | ✅ all five, plus the UMD removal. Upgrade guide in `docs/upgrade-guide.md`. |
+
+The original plan follows for reference.
+
 
 v2 is a breaking release. Every break gets a written migration path in `docs/upgrade-guide.md`, the way PayZephyr does it.
 
@@ -343,7 +369,22 @@ API providers need our own **DOM translation engine** (in `core`):
 
 ---
 
-## Documentation & links: the PayZephyr standard
+## Documentation & links: the PayZephyr standard ✅ done
+
+**Status (2026-11-02):**
+
+- ✅ D1 README rewritten: badges, what it is, who it's for, Mermaid diagram, quick start, numbered docs links.
+  **Dropped:** the comparison table with other packages: their feature sets couldn't be verified, and the README
+  shouldn't make claims about other projects that may be wrong.
+- ✅ D2 `docs/`: 24 chapters plus `docs/README.md` as the numbered index (instead of `INDEX.md`: on case-insensitive
+  filesystems it collides with VitePress's `index.md`, and GitHub shows `README.md` when browsing the folder). The
+  language table is generated, and a test fails if it drifts. Old `API.md`/`EXAMPLES.md` folded in.
+- ✅ D3 VitePress site with search, Mermaid, a live demo, and a language switcher on every page (the site translates
+  itself); `docs.yml` deploys it to GitHub Pages; CI builds it and fails on dead links.
+- ✅ D4 Community files (Phase 0), repo description, website and topics. Not done: issue labels, a pinned
+  discussion.
+- ☐ D5 Launch checklist: the maintainer's call (posting to dev.to, Reddit, Discord, awesome-vue, nuxt.com/modules).
+
 
 PayZephyr is the model: a README that explains *why* before *how*, a numbered `docs/` folder with an `INDEX.md`, CI
 and Packagist badges, generated sections kept in sync with the code, and a dedicated docs site (payzephyr.dev) that

@@ -3,22 +3,37 @@
   "version": "1.2.0",
   "description": "A Vue 3 composable and component library for Google Translate integration",
   "type": "module",
-  "main": "./dist/vue-google-translate-widget.umd.cjs",
-  "module": "./dist/vue-google-translate-widget.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/vue-google-translate-widget.js"
+        "default": "./dist/index.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
-        "default": "./dist/vue-google-translate-widget.umd.cjs"
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./server": {
+      "import": {
+        "types": "./dist/server.d.ts",
+        "default": "./dist/server.js"
+      },
+      "require": {
+        "types": "./dist/server.d.cts",
+        "default": "./dist/server.cjs"
+      }
+    },
+    "./nuxt": {
+      "import": {
+        "types": "./dist/nuxt-types/module.d.ts",
+        "default": "./dist/nuxt.js"
       }
     },
     "./style.css": "./dist/style.css",
-    "./dist/style.css": "./dist/style.css",
     "./package.json": "./package.json"
   },
   "sideEffects": [
@@ -32,7 +47,7 @@
   ],
   "scripts": {
     "dev": "vite playground --config vite.config.ts",
-    "build": "vite build && node scripts/copy-cts-types.mjs",
+    "build": "vite build && vite build --config vite.nuxt.config.ts && node scripts/copy-cts-types.mjs",
     "preview": "vite preview playground --config vite.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -42,10 +57,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints .",
+    "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints . ./server",
     "size": "size-limit",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish",
-    "sync:languages": "node scripts/sync-languages.mjs"
+    "sync:languages": "node scripts/sync-languages.mjs",
+    "nuxt:dev": "nuxi dev playground-nuxt",
+    "test:nuxt": "node scripts/nuxt-ssr-check.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "vue",
@@ -76,12 +96,16 @@
   "bugs": {
     "url": "https://github.com/ken-de-nigerian/vue-google-translate-widget/issues"
   },
-  "homepage": "https://github.com/ken-de-nigerian/vue-google-translate-widget#readme",
+  "homepage": "https://ken-de-nigerian.github.io/vue-google-translate-widget/",
   "peerDependencies": {
+    "@nuxt/kit": "^3.0.0 || ^4.0.0",
     "vue": "^3.3.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@nuxt/kit": "^3.21.11",
+    "@nuxt/schema": "^3.21.11",
+    "@size-limit/esbuild": "^14.3.0",
     "@size-limit/file": "^14.3.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "@vitest/coverage-v8": "^3.2.7",
@@ -92,6 +116,8 @@
     "eslint": "^9.39.5",
     "eslint-plugin-vue": "^10.12.0",
     "happy-dom": "^21.0.4",
+    "mermaid": "^11.17.2",
+    "nuxt": "^3.21.11",
     "playwright-core": "^1.64.1",
     "prettier": "^3.9.10",
     "publint": "^0.3.25",
@@ -99,20 +125,64 @@
     "typescript": "^5.5.0",
     "vite": "^5.4.0",
     "vite-plugin-dts": "^4.0.0",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "^3.2.7",
     "vue": "^3.4.0",
     "vue-tsc": "^2.1.0"
   },
   "size-limit": [
     {
-      "name": "ESM bundle (all exports)",
-      "path": "dist/vue-google-translate-widget.js",
+      "name": "GoogleTranslateWidget only",
+      "path": "dist/index.js",
+      "import": "{ GoogleTranslateWidget }",
+      "ignore": [
+        "vue"
+      ],
       "limit": "12 kB"
+    },
+    {
+      "name": "GoogleTranslateButton only",
+      "path": "dist/index.js",
+      "import": "{ GoogleTranslateButton }",
+      "ignore": [
+        "vue"
+      ],
+      "limit": "10 kB"
+    },
+    {
+      "name": "useGoogleTranslate only (headless)",
+      "path": "dist/index.js",
+      "import": "{ useGoogleTranslate }",
+      "ignore": [
+        "vue"
+      ],
+      "limit": "8 kB"
+    },
+    {
+      "name": "Everything",
+      "path": "dist/index.js",
+      "import": "*",
+      "ignore": [
+        "vue"
+      ],
+      "limit": "15 kB"
     },
     {
       "name": "Stylesheet",
       "path": "dist/style.css",
       "limit": "3 kB"
+    },
+    {
+      "name": "Server handlers",
+      "path": "dist/server.js",
+      "import": "*",
+      "limit": "2 kB"
     }
-  ]
+  ],
+  "peerDependenciesMeta": {
+    "@nuxt/kit": {
+      "optional": true
+    }
+  }
 }

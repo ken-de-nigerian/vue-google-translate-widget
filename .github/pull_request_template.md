@@ -6,5 +6,5 @@
 
 - [ ] Tests added or updated (`npm test`)
 - [ ] `npm run lint`, `npm run typecheck` and `npm run build` pass
-- [ ] Docs updated (README / API.md / EXAMPLES.md) if behaviour or options changed
+- [ ] Docs updated (`docs/`, README) if behaviour or options changed
 - [ ] CHANGELOG.md entry under **Unreleased**

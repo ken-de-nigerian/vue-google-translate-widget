@@ -83,3 +83,20 @@ export function clearGoogtransHash(): void {
   const { pathname, search } = window.location
   window.history.replaceState(window.history.state, '', pathname + search)
 }
+
+const isLanguageCode = (value: string | null): value is string =>
+  !!value && /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})?$/.test(value)
+
+/** Reads `?lang=fr` (or whatever `param` is) from a query string. */
+export function readQueryLanguage(search: string, param: string): string | null {
+  const value = new URLSearchParams(search).get(param)
+  return isLanguageCode(value) ? value : null
+}
+
+/** Sets or removes the language query parameter without adding a history entry. */
+export function writeQueryLanguage(param: string, language: string | null): void {
+  const url = new URL(window.location.href)
+  if (language) url.searchParams.set(param, language)
+  else url.searchParams.delete(param)
+  if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url)
+}

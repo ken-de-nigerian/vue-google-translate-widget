@@ -1,5 +1,8 @@
 import { nextTick, ref, type Ref } from 'vue'
 import type { Language } from '../core/languages'
+import { safeStorage } from '../core/browser'
+
+export { matchBrowserLanguage, safeStorage } from '../core/browser'
 
 let idCounter = 0
 /** A page-unique id prefix (Vue 3.3 has no useId). */
@@ -148,24 +151,6 @@ export type Theme = 'light' | 'dark' | 'auto'
 export type FlagStyle = 'image' | 'emoji'
 export type LanguageDisplay = 'native' | 'english' | 'both'
 
-/** localStorage that never throws (private mode, blocked storage, SSR). */
-export const safeStorage = {
-  get(key: string): string | null {
-    try {
-      return window.localStorage.getItem(key)
-    } catch {
-      return null
-    }
-  },
-  set(key: string, value: string): void {
-    try {
-      window.localStorage.setItem(key, value)
-    } catch {
-      // Storage unavailable: the feature just won't remember.
-    }
-  },
-}
-
 const RECENT_KEY = 'gtw-recent-languages'
 
 export function readRecentLanguages(): string[] {
@@ -181,28 +166,6 @@ export function rememberRecentLanguage(code: string, limit: number): string[] {
   const next = [code, ...readRecentLanguages().filter(c => c !== code)].slice(0, limit)
   safeStorage.set(RECENT_KEY, JSON.stringify(next))
   return next
-}
-
-/**
- * The first of the visitor's browser languages that we offer, unless their top
- * preference is already the page's language. Matches "fr-CA" to "fr-CA", then "fr".
- */
-export function matchBrowserLanguage<T extends { code: string }>(
-  languages: readonly T[],
-  pageLanguage: string,
-  browserLanguages: readonly string[] = typeof navigator === 'undefined' ? [] : navigator.languages,
-  toCode: (code: string) => string = code => code,
-): T | undefined {
-  const byCode = new Map(languages.map(lang => [toCode(lang.code).toLowerCase(), lang]))
-  const page = toCode(pageLanguage).toLowerCase()
-  for (const preferred of browserLanguages) {
-    const full = toCode(preferred).toLowerCase()
-    const base = toCode(full.split('-')[0])
-    if (full === page || base === page.split('-')[0]) return undefined
-    const match = byCode.get(full) ?? byCode.get(base)
-    if (match) return match
-  }
-  return undefined
 }
 
 export interface WidgetLabels {

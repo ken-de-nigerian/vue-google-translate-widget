@@ -5,7 +5,16 @@ import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 export default defineConfigWithVueTs(
   {
     name: 'app/files-to-ignore',
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      '**/.nuxt/**',
+      '**/.output/**',
+      '**/node_modules/**',
+      'docs/.vitepress/cache/**',
+      'docs/.vitepress/dist/**',
+    ],
   },
   pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommended,

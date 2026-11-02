@@ -50,27 +50,23 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  defaultLanguage: 'en',
   buttonText: 'Translate',
   errorText: DEFAULT_ERROR_TEXT,
-  showFlags: true,
+  showFlags: false,
   flagStyle: 'image',
   flagUrl: DEFAULT_FLAG_URL,
   display: 'native',
   rememberRecent: false,
-  theme: 'light',
+  theme: 'auto',
   unstyled: false,
   lazy: false,
-  mode: 'live',
-  reloadOnRestore: false,
-  hideBranding: true,
-  syncDocumentDir: true,
+  reloadOnRestore: undefined,
+  hideBranding: undefined,
+  syncDocumentDir: undefined,
 })
 
 const emit = defineEmits<{
   change: [language: string]
-  /** @deprecated Use `change`. Removed in 2.0. */
-  languageChanged: [language: string]
   'update:language': [language: string]
   ready: []
   error: [error: Error]
@@ -94,6 +90,7 @@ const {
   changeLanguage,
   initializeTranslate,
   getCurrentLanguage,
+  pageLanguage,
 } = useGoogleTranslate({
   defaultLanguage: props.defaultLanguage,
   includedLanguages: () => props.includedLanguages,
@@ -145,7 +142,6 @@ const selectLanguage = async (code: string) => {
     await changeLanguage(code)
     if (recentLimit.value) recentCodes.value = rememberRecentLanguage(currentLanguage.value, recentLimit.value)
     emit('change', currentLanguage.value)
-    emit('languageChanged', currentLanguage.value)
     emit('update:language', currentLanguage.value)
   } catch (cause) {
     emit('error', cause as Error)
@@ -226,7 +222,7 @@ onMounted(async () => {
   if (recentLimit.value) recentCodes.value = readRecentLanguages()
 
   // A saved translation has to be applied right away, even when lazy.
-  const translated = getCurrentLanguage() !== toGoogleCode(props.defaultLanguage)
+  const translated = getCurrentLanguage() !== pageLanguage
   if (!props.lazy || translated) await initializeTranslate()
 
   if (props.language !== undefined && toGoogleCode(props.language) !== currentLanguage.value) {

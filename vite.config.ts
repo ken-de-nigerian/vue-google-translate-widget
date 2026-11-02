@@ -11,20 +11,21 @@ export default defineConfig({
       rollupTypes: true,
       tsconfigPath: './tsconfig.json',
       include: ['src'],
+      exclude: ['src/nuxt'],
     }),
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'VueGoogleTranslateWidget',
-      fileName: format => `vue-google-translate-widget.${format === 'es' ? 'js' : 'umd.cjs'}`,
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        server: resolve(__dirname, 'src/server/index.ts'),
+      },
+      formats: ['es', 'cjs'],
+      fileName: (format, name) => `${name}.${format === 'es' ? 'js' : 'cjs'}`,
     },
     rollupOptions: {
       external: ['vue'],
       output: {
-        globals: {
-          vue: 'Vue',
-        },
         assetFileNames: assetInfo => {
           if (assetInfo.name === 'style.css') return 'style.css'
           return assetInfo.name || ''

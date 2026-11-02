@@ -209,7 +209,11 @@ describe('GoogleTranslateWidget', () => {
   })
 
   it('renders flags from flagUrl, a code badge when there is no flag, or nothing (B16)', async () => {
-    const wrapper = await mountWidget({ includedLanguages: ['fr', 'eo'], flagUrl: (f: string) => `/flags/${f}.svg` })
+    const wrapper = await mountWidget({
+      includedLanguages: ['fr', 'eo'],
+      showFlags: true,
+      flagUrl: (f: string) => `/flags/${f}.svg`,
+    })
     await openWidget(wrapper)
 
     expect(wrapper.find('img.gtw-flag').attributes('src')).toBe('/flags/fr.svg')
@@ -290,7 +294,7 @@ describe('GoogleTranslateButton', () => {
     expect(combo().value).toBe('de')
   })
 
-  it('emits change, languageChanged and update:language after the change is applied (B10)', async () => {
+  it('emits change and update:language after the change is applied (B10)', async () => {
     const wrapper = await mountButton({ includedLanguages: ['en', 'fr'] })
     let comboValueAtEmit = ''
     wrapper.vm.$.vnode.props = {
@@ -306,7 +310,7 @@ describe('GoogleTranslateButton', () => {
 
     expect(comboValueAtEmit).toBe('fr')
     expect(wrapper.emitted('change')).toEqual([['fr']])
-    expect(wrapper.emitted('languageChanged')).toEqual([['fr']])
+    expect(wrapper.emitted('languageChanged')).toBeUndefined() // removed in 2.0
     expect(wrapper.emitted('update:language')).toEqual([['fr']])
     expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
   })

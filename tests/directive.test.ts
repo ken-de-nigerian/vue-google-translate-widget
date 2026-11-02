@@ -33,11 +33,12 @@ describe('v-no-translate', () => {
     expect(wrapper.classes()).toContain('brand')
   })
 
-  it('renders the attributes during SSR', async () => {
+  it('renders translate="no" during SSR, without a class', async () => {
     // A render function, not a template: Vue 3.3/3.4's server renderer doesn't compile template strings.
     const app = createSSRApp({ render: () => withDirectives(h('b', 'Acme'), [[vNoTranslate]]) })
     const html = await renderToString(app)
     expect(html).toContain('translate="no"')
-    expect(html).toContain('notranslate')
+    // No class on the server: it would cause a hydration class mismatch (found in Nuxt dev mode).
+    expect(html).not.toContain('class=')
   })
 })
