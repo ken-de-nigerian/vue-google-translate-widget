@@ -68,3 +68,36 @@ export function waitForTranslationState(translated: boolean, timeout = 3000): Pr
 export function reloadPage(): void {
   window.location.reload()
 }
+
+let directionObserver: MutationObserver | null = null
+let originalDir: string | null = null
+
+const syncDirection = () => {
+  const root = document.documentElement
+  if (/\btranslated-rtl\b/.test(root.className)) {
+    if (root.dir !== 'rtl') root.dir = 'rtl'
+  } else if (root.dir !== (originalDir ?? '')) {
+    if (originalDir) root.dir = originalDir
+    else root.removeAttribute('dir')
+  }
+}
+
+/**
+ * Google marks <html> with `translated-rtl` for Arabic, Hebrew, etc. but never
+ * sets `dir`, so the layout stays left-to-right. Mirror the class onto `dir`
+ * (and put the original back afterwards). One observer per page; idempotent.
+ */
+export function startDirectionSync(): void {
+  if (directionObserver) return
+  originalDir = document.documentElement.getAttribute('dir')
+  directionObserver = new MutationObserver(syncDirection)
+  directionObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  syncDirection()
+}
+
+/** Test helper. */
+export function stopDirectionSync(): void {
+  directionObserver?.disconnect()
+  directionObserver = null
+  originalDir = null
+}

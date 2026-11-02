@@ -2,7 +2,20 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { toGoogleCode, type Language } from '../core/languages'
 import { useGoogleTranslate, type TranslateMode } from '../composables/useGoogleTranslate'
-import { createId, DEFAULT_ERROR_TEXT, DEFAULT_FLAG_URL, useListNavigation } from './shared'
+import LanguageFlag from './LanguageFlag.vue'
+import {
+  createId,
+  DEFAULT_ERROR_TEXT,
+  DEFAULT_FLAG_URL,
+  orderLanguages,
+  readRecentLanguages,
+  rememberRecentLanguage,
+  useListNavigation,
+  type FlagStyle,
+  type LanguageDisplay,
+  type Theme,
+} from './shared'
+import '../styles/tokens.css'
 
 interface Props {
   defaultLanguage?: string
@@ -14,10 +27,23 @@ interface Props {
   buttonClass?: string
   errorText?: string
   showFlags?: boolean
+  flagStyle?: FlagStyle
   flagUrl?: (flag: string) => string
+  /** Which name(s) to show for each language. */
+  display?: LanguageDisplay
+  /** Codes to list first, in this order. */
+  pinned?: string[]
+  /** Remember recently chosen languages (in localStorage) and list them first. `true` keeps 3. */
+  rememberRecent?: boolean | number
+  theme?: Theme
+  /** Render no styles (except screen-reader helpers), for styling from scratch. */
+  unstyled?: boolean
+  /** Load Google only when the dropdown is first opened (or when a saved translation must be applied). */
+  lazy?: boolean
   mode?: TranslateMode
   reloadOnRestore?: boolean
   hideBranding?: boolean
+  syncDocumentDir?: boolean
   scriptSrc?: string
   nonce?: string
   timeout?: number
@@ -28,10 +54,17 @@ const props = withDefaults(defineProps<Props>(), {
   buttonText: 'Translate',
   errorText: DEFAULT_ERROR_TEXT,
   showFlags: true,
+  flagStyle: 'image',
   flagUrl: DEFAULT_FLAG_URL,
+  display: 'native',
+  rememberRecent: false,
+  theme: 'light',
+  unstyled: false,
+  lazy: false,
   mode: 'live',
   reloadOnRestore: false,
   hideBranding: true,
+  syncDocumentDir: true,
 })
 
 const emit = defineEmits<{
@@ -45,18 +78,34 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { currentLanguage, isChangingLanguage, languages, status, error, changeLanguage, initializeTranslate } =
-  useGoogleTranslate({
-    defaultLanguage: props.defaultLanguage,
-    includedLanguages: () => props.includedLanguages,
-    languages: () => props.languages,
-    mode: props.mode,
-    reloadOnRestore: props.reloadOnRestore,
-    hideBranding: props.hideBranding,
-    scriptSrc: props.scriptSrc,
-    nonce: props.nonce,
-    timeout: props.timeout,
-  })
+defineSlots<{
+  /** Content of the button (default: icon, `buttonText`, chevron). */
+  default?: (props: { isOpen: boolean; currentLanguage: string; current: Language | undefined }) => unknown
+  /** Content of each option (default: flag and name). */
+  item?: (props: { language: Language; selected: boolean; active: boolean; select: () => void }) => unknown
+}>()
+
+const {
+  currentLanguage,
+  isChangingLanguage,
+  languages,
+  status,
+  error,
+  changeLanguage,
+  initializeTranslate,
+  getCurrentLanguage,
+} = useGoogleTranslate({
+  defaultLanguage: props.defaultLanguage,
+  includedLanguages: () => props.includedLanguages,
+  languages: () => props.languages,
+  mode: props.mode,
+  reloadOnRestore: props.reloadOnRestore,
+  hideBranding: props.hideBranding,
+  syncDocumentDir: props.syncDocumentDir,
+  scriptSrc: props.scriptSrc,
+  nonce: props.nonce,
+  timeout: props.timeout,
+})
 
 const baseId = createId('gtb')
 const listId = `${baseId}-list`
@@ -66,8 +115,21 @@ const rootRef = ref<HTMLElement | null>(null)
 const buttonRef = ref<HTMLButtonElement | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
+const recentCodes = ref<string[]>([])
+
+const recentLimit = computed(() =>
+  props.rememberRecent === true ? 3 : typeof props.rememberRecent === 'number' ? props.rememberRecent : 0,
+)
 
 const isCurrent = (language: Language) => toGoogleCode(language.code) === currentLanguage.value
+
+const orderedLanguages = computed(() =>
+  orderLanguages(languages, props.pinned, recentLimit.value ? recentCodes.value : [], toGoogleCode),
+)
+
+const currentInfo = computed(() => languages.find(isCurrent))
+
+const rootClasses = computed(() => ['gtb-container', `gtw-theme-${props.theme}`, { 'gtb-styled': !props.unstyled }])
 
 const closeDropdown = (restoreFocus = true) => {
   if (!isOpen.value) return
@@ -81,6 +143,7 @@ const selectLanguage = async (code: string) => {
   closeDropdown()
   try {
     await changeLanguage(code)
+    if (recentLimit.value) recentCodes.value = rememberRecentLanguage(currentLanguage.value, recentLimit.value)
     emit('change', currentLanguage.value)
     emit('languageChanged', currentLanguage.value)
     emit('update:language', currentLanguage.value)
@@ -90,23 +153,24 @@ const selectLanguage = async (code: string) => {
 }
 
 const { activeIndex, setActive, onKeydown } = useListNavigation({
-  count: () => languages.length,
+  count: () => orderedLanguages.value.length,
   optionId,
-  onSelect: index => selectLanguage(languages[index].code),
+  onSelect: index => selectLanguage(orderedLanguages.value[index].code),
   onClose: () => closeDropdown(),
   spaceSelects: true,
 })
 
 const activeDescendant = computed(() =>
-  activeIndex.value >= 0 && activeIndex.value < languages.length ? optionId(activeIndex.value) : undefined,
+  activeIndex.value >= 0 && activeIndex.value < orderedLanguages.value.length ? optionId(activeIndex.value) : undefined,
 )
 
 const openDropdown = async () => {
   if (isOpen.value) return
+  if (status.value === 'idle') initializeTranslate()
   isOpen.value = true
   emit('open')
   await nextTick()
-  const current = languages.findIndex(isCurrent)
+  const current = orderedLanguages.value.findIndex(isCurrent)
   setActive(current >= 0 ? current : 0)
   listRef.value?.focus()
 }
@@ -159,7 +223,12 @@ watch(
 
 onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
-  await initializeTranslate()
+  if (recentLimit.value) recentCodes.value = readRecentLanguages()
+
+  // A saved translation has to be applied right away, even when lazy.
+  const translated = getCurrentLanguage() !== toGoogleCode(props.defaultLanguage)
+  if (!props.lazy || translated) await initializeTranslate()
+
   if (props.language !== undefined && toGoogleCode(props.language) !== currentLanguage.value) {
     emit('update:language', currentLanguage.value)
   }
@@ -171,7 +240,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="rootRef" class="gtb-container">
+  <div ref="rootRef" :class="rootClasses">
     <button
       ref="buttonRef"
       type="button"
@@ -182,39 +251,41 @@ onBeforeUnmount(() => {
       :aria-controls="isOpen ? listId : undefined"
       @click="toggleDropdown"
       @keydown="onButtonKeydown">
-      <svg
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-        <path d="m5 8 6 6" />
-        <path d="m4 14 6-6 2-3" />
-        <path d="M2 5h12" />
-        <path d="M7 2h1" />
-        <path d="m22 22-5-10-5 10" />
-        <path d="M14 18h6" />
-      </svg>
-      <span>{{ buttonText }}</span>
-      <svg
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        :class="{ 'gtb-chevron-open': isOpen }">
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      <slot :is-open="isOpen" :current-language="currentLanguage" :current="currentInfo">
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="m5 8 6 6" />
+          <path d="m4 14 6-6 2-3" />
+          <path d="M2 5h12" />
+          <path d="M7 2h1" />
+          <path d="m22 22-5-10-5 10" />
+          <path d="M14 18h6" />
+        </svg>
+        <span>{{ buttonText }}</span>
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          :class="['gtb-chevron', { 'gtb-chevron-open': isOpen }]">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </slot>
     </button>
 
     <Transition name="gtb-dropdown">
@@ -230,7 +301,7 @@ onBeforeUnmount(() => {
           :aria-activedescendant="activeDescendant"
           @keydown="onListKeydown">
           <li
-            v-for="(lang, index) in languages"
+            v-for="(lang, index) in orderedLanguages"
             :id="optionId(index)"
             :key="lang.code"
             role="option"
@@ -244,33 +315,41 @@ onBeforeUnmount(() => {
             ]"
             @mousemove="activeIndex !== index && setActive(index)"
             @click="selectLanguage(lang.code)">
-            <template v-if="showFlags">
-              <img
-                v-if="lang.flag"
+            <slot
+              name="item"
+              :language="lang"
+              :selected="isCurrent(lang)"
+              :active="index === activeIndex"
+              :select="() => selectLanguage(lang.code)">
+              <LanguageFlag
+                v-if="showFlags"
                 class="gtb-flag"
-                :src="flagUrl(lang.flag)"
-                alt=""
-                loading="lazy"
-                @error="(e: Event) => ((e.target as HTMLImageElement).style.visibility = 'hidden')" />
-              <span v-else class="gtb-flag gtb-flag-code notranslate" translate="no" aria-hidden="true">{{
-                lang.code
-              }}</span>
-            </template>
-            <span class="gtb-language-name notranslate" translate="no">{{ lang.nativeName }}</span>
-            <svg
-              v-if="isCurrent(lang)"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+                prefix="gtb"
+                :flag="lang.flag"
+                :code="lang.code"
+                :flag-style="flagStyle"
+                :flag-url="flagUrl" />
+              <span class="gtb-names">
+                <span v-if="display !== 'english'" class="gtb-language-name notranslate" translate="no">
+                  {{ lang.nativeName }}
+                </span>
+                <span v-if="display !== 'native'" class="gtb-language-english">{{ lang.name }}</span>
+              </span>
+              <svg
+                v-if="isCurrent(lang)"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            </slot>
           </li>
         </ul>
       </div>
@@ -279,55 +358,62 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* Every rule is gated on :where(.gtb-styled), which adds no specificity, so `unstyled` turns them all off. */
 .gtb-container {
   position: relative;
   display: inline-block;
 }
 
-.gtb-button {
+.gtb-container:where(.gtb-styled) {
+  font-family: var(--_gtw-font);
+}
+
+:where(.gtb-styled) .gtb-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--_gtw-bg);
+  border: 1px solid var(--_gtw-border);
   border-radius: 0.5rem;
+  font: inherit;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  color: #374151;
+  color: var(--_gtw-text);
 }
 
-.gtb-button:hover:not([aria-disabled='true']) {
-  background: #f9fafb;
-  border-color: #d1d5db;
+:where(.gtb-styled) .gtb-button:hover:not([aria-disabled='true']) {
+  background: var(--_gtw-surface);
+  border-color: var(--_gtw-border-strong);
 }
 
-.gtb-button:focus-visible {
-  outline: 2px solid #2563eb;
+:where(.gtb-styled) .gtb-button:focus-visible {
+  outline: 2px solid var(--_gtw-primary-hover);
   outline-offset: 2px;
 }
 
-.gtb-button[aria-disabled='true'] {
+:where(.gtb-styled) .gtb-button[aria-disabled='true'] {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.gtb-button svg:last-child {
+:where(.gtb-styled) .gtb-chevron {
   transition: transform 0.2s;
 }
 
-.gtb-chevron-open {
+:where(.gtb-styled) .gtb-chevron-open {
   transform: rotate(180deg);
 }
 
-.gtb-dropdown {
+:where(.gtb-styled) .gtb-dropdown {
   position: absolute;
   top: calc(100% + 0.5rem);
-  right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
+  inset-inline-end: 0;
+  background: var(--_gtw-bg);
+  color: var(--_gtw-text);
+  border: 1px solid var(--_gtw-border);
   border-radius: 0.5rem;
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
@@ -338,22 +424,22 @@ onBeforeUnmount(() => {
   z-index: 50;
 }
 
-.gtb-list {
+:where(.gtb-styled) .gtb-list {
   list-style: none;
   margin: 0;
   padding: 0;
   outline: none;
 }
 
-.gtb-error {
+:where(.gtb-styled) .gtb-error {
   margin: 0;
   padding: 0.75rem 1rem;
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--_gtw-error-bg);
+  color: var(--_gtw-error-text);
   font-size: 0.8125rem;
 }
 
-.gtb-dropdown-item {
+:where(.gtb-styled) .gtb-dropdown-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -362,43 +448,64 @@ onBeforeUnmount(() => {
   transition: background 0.2s;
 }
 
-.gtb-dropdown-item:hover,
-.gtb-dropdown-item-focused {
-  background: #f3f4f6;
+:where(.gtb-styled) .gtb-dropdown-item:hover,
+:where(.gtb-styled) .gtb-dropdown-item-focused {
+  background: var(--_gtw-surface-strong);
 }
 
-.gtb-list:focus-visible .gtb-dropdown-item-focused {
-  outline: 2px solid #3b82f6;
+:where(.gtb-styled) .gtb-list:focus-visible .gtb-dropdown-item-focused {
+  outline: 2px solid var(--_gtw-primary);
   outline-offset: -2px;
 }
 
-.gtb-dropdown-item-active {
-  background: rgba(59, 130, 246, 0.05);
-  color: #2563eb;
+:where(.gtb-styled) .gtb-dropdown-item-active {
+  background: var(--_gtw-active-bg);
+  color: var(--_gtw-primary-text);
 }
 
-.gtb-flag {
-  display: block;
+:where(.gtb-styled) .gtb-flag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   width: 1.5rem;
   height: 1rem;
   border-radius: 0.25rem;
   object-fit: cover;
 }
 
-.gtb-flag-code {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  color: #374151;
+:where(.gtb-styled) .gtb-flag-emoji {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+:where(.gtb-styled) .gtb-flag-code {
+  background: var(--_gtw-surface-strong);
+  color: var(--_gtw-text);
   font-size: 0.5625rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.gtb-language-name {
+:where(.gtb-styled) .gtb-names {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  min-width: 0;
+}
+
+:where(.gtb-styled) .gtb-language-name {
   font-size: 0.875rem;
+}
+
+:where(.gtb-styled) .gtb-language-english {
+  font-size: 0.75rem;
+  color: var(--_gtw-text-muted);
+}
+
+:where(.gtb-styled) .gtb-names > .gtb-language-english:first-child {
+  font-size: 0.875rem;
+  color: inherit;
 }
 
 .gtb-dropdown-enter-active,
@@ -415,8 +522,8 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gtb-button,
-  .gtb-dropdown-item,
+  :where(.gtb-styled) .gtb-button,
+  :where(.gtb-styled) .gtb-dropdown-item,
   .gtb-dropdown-enter-active,
   .gtb-dropdown-leave-active {
     transition: none;

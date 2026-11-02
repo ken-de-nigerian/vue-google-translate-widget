@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: Phases 0–1 complete and verified (1.0.2 and 1.1.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: Phases 0–2 complete and verified (1.0.2, 1.1.0 and 1.2.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -229,24 +229,44 @@ logs a dev-only warning.
 
 ---
 
-## Phase 2: Polish (`1.2.0`)
+## Phase 2: Polish (`1.2.0`) ✅ done
 
-- **Theming with CSS custom properties.** `--gtw-color-primary`, `--gtw-color-bg`, `--gtw-color-text`, `--gtw-radius`,
-  `--gtw-font`, `--gtw-z-index`, and so on, documented in a table. Replace every hard-coded colour.
-- **Dark mode.** `theme: 'light' | 'dark' | 'auto'` (default `'auto'`, follows `prefers-color-scheme`), and respects a `.dark` class on `<html>`.
-- **Unstyled mode.** `unstyled` prop for Tailwind/UnoCSS users; every element keeps a stable `gtw-*` class.
-- **Slots.** `trigger`, `header`, `item`, `empty`, `footer`; scoped slot props expose `language`, `active` and `select()`.
-- **Floating button position.** `position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'` and `offset`.
-- **RTL.** When translating to `ar`, `he`/`iw`, `fa`, `ur`, `yi`, `sd`, `ps`, `ug`, set `dir="rtl"` and `lang` on
-  `<html>` (Google sets the class but not `dir`). `syncDocumentDir` option, default `true`.
-- **Labels.** Every string (title, subtitle, placeholder, "No languages found", aria labels) becomes a prop, grouped under one `labels` object.
-- **Language display.** `display: 'native' | 'english' | 'both'`; `pinned: string[]` (shown first); "recently used" (localStorage, opt-in).
-- **Browser language suggestion.** `suggestBrowserLanguage` shows a non-blocking prompt ("View this page in Français?") based on `navigator.languages`.
-- **`v-no-translate` directive.** Adds `translate="no"` + `class="notranslate"`, so brand names and code blocks stay untranslated.
-- **Moved from Phase 1:** a weekly CI job that re-captures Google's language list and fails on drift (B9); an
-  emoji flag option and a bundled SVG flag set (B16).
-- **Performance.** `lazy: true` loads Google's script only on first open, not on mount (a big Lighthouse win).
-  Virtualise the list when there are more than 60 items.
+**Status (2026-11-02):** everything below has tests (158 in total) and was checked in the browser against the real
+Google script (themes and auto-theme resolution, emoji flags, pinned order, RTL `dir` on and off, `lazy`,
+`unstyled`, override specificity). Two items were deliberately dropped; their reasons are below.
+
+- ✅ **Theming with CSS custom properties.** 17 public `--gtw-*` properties (colours, radius, shadow, font,
+  z-index, offset), shared by both components and documented in the README. No hard-coded colours remain.
+- ✅ **Dark mode.** `theme: 'light' | 'dark' | 'auto'`. `auto` follows `html.dark` / `html.light`, then
+  `prefers-color-scheme`. *Deviation:* the default is `'light'`, not `'auto'`, so sites upgrading within 1.x don't
+  suddenly get a dark popup on a light page. Switching the default to `'auto'` is on the 2.0 breaking list.
+- ✅ **Unstyled mode.** `unstyled`; every rule is gated on `:where(.gtw-styled)` (no added specificity). The
+  screen-reader-only helper stays on.
+- ✅ **Slots.** Widget: `trigger`, `header` (with `titleId`), `item`, `empty`, `footer`. Button: default slot
+  (button content, with the `current` language) and `item`. `item` gets `language`, `selected`, `active`, `select()`.
+- ✅ **Floating button position.** `position` (4 corners) and `offset`.
+- ✅ **RTL.** `syncDocumentDir` (default `true`): a page-level observer mirrors Google's `translated-rtl` class onto
+  `<html dir>` and restores the page's own `dir` afterwards. `lang` needed no work: Google already sets it.
+- ✅ **Labels.** Existing text props kept (no deprecations); a `labels` object covers everything else, including
+  the accessible names and the screen-reader results count.
+- ✅ **Language display.** `display`, `pinned`, `rememberRecent` (localStorage, opt-in, safe when storage throws).
+- ✅ **Browser language suggestion.** `suggestBrowserLanguage`: regional match first, then base language;
+  silent when the visitor already prefers the page language or the page is translated; dismissal remembered.
+- ✅ **`v-no-translate` directive**, including SSR output.
+- ✅ **Weekly language check** (moved from Phase 1): `npm run sync:languages` loads the real widget in headless
+  Chromium; `.github/workflows/languages.yml` runs it every Monday and fails on drift. Verified locally against
+  Google (248 languages, no drift) and with a simulated drift (exits 1).
+- ✅ **Emoji flags** (moved from Phase 1): `flagStyle: 'emoji'`, including the England/Scotland/Wales tag
+  sequences; regional flags without an emoji fall back to a code badge.
+- ✅ **Lazy loading.** `lazy` loads Google on first open; a saved translation still loads immediately.
+- ✗ **Virtualised list: dropped.** Measured in the browser: opening the modal with all 110 languages takes ~30 ms
+  including two animation frames, and filtering ~17 ms (one frame). Google's full list (248) stays well under
+  any noticeable delay, so virtualisation would add code and complexity for no visible gain.
+- ✗ **Bundled SVG flag set (moved from Phase 1): dropped.** Shipping 100+ SVGs would add hundreds of kB to the
+  package for an option most sites won't use. `flagUrl` already lets you self-host any set (e.g. `flag-icons`),
+  and `flagStyle: 'emoji'` needs no files at all.
+
+Bundle budget raised to 12 kB JS / 3 kB CSS (now 11.2 / 2.5 kB brotli) for the features above.
 
 ---
 
@@ -319,6 +339,7 @@ API providers need our own **DOM translation engine** (in `core`):
 - `changeLanguage` is async (already returning a Promise from 1.1 onwards, so mostly non-breaking)
 - Flags default to `'none'`
 - Style import path becomes `/style.css` only
+- `theme` defaults to `'auto'` (1.x keeps `'light'`)
 
 ---
 

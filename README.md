@@ -15,14 +15,17 @@ A lightweight, customizable Vue 3 component and composable library for integrati
 - ⚡ **No page reloads** - Switches language in place and restores the original the same way
 - ♿ **Accessible** - Keyboard navigation, focus management and ARIA roles, checked with axe-core in CI
 - 🧹 **Clean page** - Google's banner, tooltips and highlight are hidden for you (`hideBranding`)
-- 🎨 **Customizable UI** - Two ready-made components, or use the composable to build your own
+- 🎨 **Customizable UI** - Light/dark/auto themes, CSS custom properties, slots, an unstyled mode, or the composable
+- ↔️ **RTL-aware** - Sets `<html dir="rtl">` for Arabic, Hebrew, Persian, Urdu and other right-to-left languages
+- 💡 **Smart extras** - Pinned and recently used languages, a "View this page in …?" browser-language prompt,
+  lazy loading, emoji flags, and a `v-no-translate` directive
 - 🪝 **Vue 3 Composable** - Shared, reactive state: current language, loading status, errors
 - 💪 **TypeScript** - Fully typed
 - 🎯 **Zero Dependencies** - Only requires Vue 3 (flag images load from `flagcdn.com`; see `flagUrl` / `showFlags`)
-- 📦 **Small Bundle** - About 9 kB of JavaScript and 2 kB of CSS (brotli), checked in CI
+- 📦 **Small Bundle** - About 11 kB of JavaScript and 2.5 kB of CSS (brotli) for everything, checked in CI
 - 🎭 **SSR-safe** - Google's script only loads in the browser, on mount; use a client-only plugin in Nuxt
 
-> **Roadmap:** theming/dark mode, RTL page direction and a Nuxt module are planned for 1.2–2.0.
+> **Roadmap:** a Nuxt module, an app-wide plugin and pluggable translation providers are planned for 2.0.
 > See [ROADMAP.md](ROADMAP.md).
 
 ## Installation
@@ -112,6 +115,55 @@ onMounted(() => {
 You don't need to add any hidden element: the package creates one hidden host for Google and shares it between
 every component and composable on the page.
 
+## Theming
+
+Set any of these CSS custom properties on `:root` (or any ancestor). They apply to both components and both themes;
+scope them under your own dark selector to change only dark mode.
+
+| Property | Light default | Used for |
+|----------|---------------|----------|
+| `--gtw-color-primary` | `#3b82f6` | Floating button, active border, focus rings |
+| `--gtw-color-primary-hover` | `#2563eb` | Hover |
+| `--gtw-color-primary-text` | `#2563eb` | Text of the current language |
+| `--gtw-color-on-primary` | `#ffffff` | Icons on the primary colour |
+| `--gtw-color-bg` / `--gtw-color-text` | `#ffffff` / `#111827` | Panels |
+| `--gtw-color-surface` / `--gtw-color-surface-strong` | `#f9fafb` / `#f3f4f6` | Hover and badges |
+| `--gtw-color-border` / `--gtw-color-border-strong` | `#e5e7eb` / `#d1d5db` | Borders |
+| `--gtw-color-text-muted` / `--gtw-color-text-subtle` | `#4b5563` / `#9ca3af` | Secondary text, icons |
+| `--gtw-color-active-bg` | `rgba(59,130,246,.08)` | Current language background |
+| `--gtw-color-overlay` | `rgba(0,0,0,.5)` | Modal backdrop |
+| `--gtw-color-error-bg` / `--gtw-color-error-text` | `#fef2f2` / `#991b1b` | Error message |
+| `--gtw-radius` | `1rem` | Modal corners |
+| `--gtw-shadow` | | Modal and prompt shadow |
+| `--gtw-font` | system UI stack | Font |
+| `--gtw-z-index` | `9999` | Floating button (the modal sits one above) |
+| `--gtw-offset` | `1rem` / `1.5rem` | Floating button distance from the corner |
+
+```css
+:root {
+  --gtw-color-primary: #16a34a;
+  --gtw-radius: 0.5rem;
+}
+```
+
+For full control, pass `unstyled` and style the `gtw-*` / `gtb-*` classes yourself (see [API.md](./API.md)).
+
+## Keeping Text Untranslated
+
+Brand names, code and addresses shouldn't be machine-translated. Use the directive:
+
+```vue
+<script setup>
+import { vNoTranslate } from '@ken_de_nigerian/vue-google-translate-widget'
+</script>
+
+<template>
+  <span v-no-translate>PayZephyr</span>
+</template>
+```
+
+It adds `translate="no"` and `class="notranslate"` (also during SSR). `v-no-translate="false"` turns it off.
+
 ## Google's Branding
 
 Google's widget adds a banner at the top of the page (pushing your layout down by 40px), hover tooltips and a
@@ -141,6 +193,14 @@ Both components accept these:
 | `scriptSrc` | `string` | Google's URL | Load Google's script from somewhere else (e.g. a proxy) |
 | `nonce` | `string` | | CSP nonce for the injected `<script>` and `<style>` |
 | `timeout` | `number` | `10000` | Milliseconds to wait for Google before showing the error |
+| `theme` | `'light' \| 'dark' \| 'auto'` | `'light'` | `auto` follows `html.dark` / `html.light`, then the OS setting |
+| `unstyled` | `boolean` | `false` | Render without styles, for styling from scratch |
+| `display` | `'native' \| 'english' \| 'both'` | Widget `'both'`, Button `'native'` | Which language names to show |
+| `pinned` | `string[]` | | Codes to list first, in this order |
+| `rememberRecent` | `boolean \| number` | `false` | Remember recent choices (localStorage) and list them first; `true` keeps 3 |
+| `flagStyle` | `'image' \| 'emoji'` | `'image'` | Emoji flags need no network requests |
+| `lazy` | `boolean` | `false` | Load Google only on first open (or immediately if a saved translation must be applied) |
+| `syncDocumentDir` | `boolean` | `true` | Set `<html dir="rtl">` while showing a right-to-left language |
 
 ### GoogleTranslateWidget
 
@@ -149,6 +209,10 @@ Both components accept these:
 | `title` | `string` | `'Change Language'` | Modal title |
 | `subtitle` | `string` | `'Select your preferred language for the interface'` | Modal subtitle |
 | `searchPlaceholder` | `string` | `'Search languages...'` | Search placeholder (also its accessible label) |
+| `position` | `'bottom-left' \| 'bottom-right' \| 'top-left' \| 'top-right'` | `'bottom-left'` | Corner for the floating button |
+| `offset` | `string` | `1rem` (`1.5rem` from 768px) | Distance from the corner, any CSS length |
+| `suggestBrowserLanguage` | `boolean` | `false` | Offer "View this page in …?" in the visitor's browser language |
+| `labels` | `Partial<WidgetLabels>` | English | Every other piece of text: `open`, `close`, `noResults`, `noResultsHint`, `results(n)`, `suggestion(lang)`, `accept`, `dismiss` |
 
 ### GoogleTranslateButton
 
@@ -173,6 +237,23 @@ Both components emit:
 
 ```vue
 <GoogleTranslateButton @change="lang => analytics.track('language', { lang })" />
+```
+
+### Slots
+
+| Component | Slot | Props | Replaces |
+|-----------|------|-------|----------|
+| Widget | `trigger` | `isOpen`, `currentLanguage` | The floating button's icon |
+| Widget | `header` | `close`, `titleId` | Title and subtitle (put `:id="titleId"` on your heading) |
+| Widget | `empty` | `query` | The "no results" message |
+| Widget | `footer` | `close` | Nothing: adds a footer below the list |
+| Button | default | `isOpen`, `currentLanguage`, `current` | The button's icon, text and chevron |
+| Both | `item` | `language`, `selected`, `active` | Each option's content (the option keeps its role and keyboard support) |
+
+```vue
+<GoogleTranslateButton>
+  <template #default="{ current }">🌐 {{ current?.nativeName ?? 'Language' }}</template>
+</GoogleTranslateButton>
 ```
 
 ### Keyboard
@@ -202,6 +283,7 @@ interface UseGoogleTranslateOptions {
   scriptSrc?: string
   nonce?: string
   timeout?: number                                      // 10000
+  syncDocumentDir?: boolean                             // true
 }
 ```
 

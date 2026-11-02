@@ -17,6 +17,7 @@ import {
   injectBrandingStyles,
   isPageTranslated,
   reloadPage,
+  startDirectionSync,
   waitForTranslationState,
 } from '../core/page'
 
@@ -51,6 +52,8 @@ export interface UseGoogleTranslateOptions {
   nonce?: string
   /** How long to wait for Google's script, in ms. Default: `10000`. */
   timeout?: number
+  /** Set `<html dir="rtl">` while the page is shown in a right-to-left language. Default: `true`. */
+  syncDocumentDir?: boolean
 }
 
 export interface UseGoogleTranslateReturn {
@@ -98,6 +101,7 @@ export function useGoogleTranslate(options: UseGoogleTranslateOptions = {}): Use
     scriptSrc,
     nonce,
     timeout,
+    syncDocumentDir = true,
   } = options
 
   const getCurrentLanguage = (): string => readGoogtrans()?.target ?? defaultLanguage
@@ -118,6 +122,7 @@ export function useGoogleTranslate(options: UseGoogleTranslateOptions = {}): Use
     if (status.value !== 'ready') status.value = 'loading'
     try {
       const combo = await loadGoogleTranslate({ pageLanguage: defaultLanguage, autoDisplay, scriptSrc, nonce, timeout })
+      if (syncDocumentDir) startDirectionSync()
       status.value = 'ready'
       error.value = null
       return combo

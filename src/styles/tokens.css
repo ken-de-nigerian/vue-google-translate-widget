@@ -1,0 +1,91 @@
+/*
+ * Design tokens for both components. Override the public --gtw-* properties
+ * (on :root, or any ancestor); the components read them through the private
+ * --_gtw-* ones, which hold the light and dark defaults.
+ */
+.google-translate-widget,
+.gtb-container {
+  --_gtw-primary: var(--gtw-color-primary, #3b82f6);
+  --_gtw-primary-hover: var(--gtw-color-primary-hover, #2563eb);
+  --_gtw-primary-text: var(--gtw-color-primary-text, #2563eb);
+  --_gtw-on-primary: var(--gtw-color-on-primary, #ffffff);
+  --_gtw-bg: var(--gtw-color-bg, #ffffff);
+  --_gtw-surface: var(--gtw-color-surface, #f9fafb);
+  --_gtw-surface-strong: var(--gtw-color-surface-strong, #f3f4f6);
+  --_gtw-border: var(--gtw-color-border, #e5e7eb);
+  --_gtw-border-strong: var(--gtw-color-border-strong, #d1d5db);
+  --_gtw-text: var(--gtw-color-text, #111827);
+  --_gtw-text-muted: var(--gtw-color-text-muted, #4b5563);
+  --_gtw-text-subtle: var(--gtw-color-text-subtle, #9ca3af);
+  --_gtw-active-bg: var(--gtw-color-active-bg, rgba(59, 130, 246, 0.08));
+  --_gtw-overlay: var(--gtw-color-overlay, rgba(0, 0, 0, 0.5));
+  --_gtw-error-bg: var(--gtw-color-error-bg, #fef2f2);
+  --_gtw-error-text: var(--gtw-color-error-text, #991b1b);
+  --_gtw-radius: var(--gtw-radius, 1rem);
+  --_gtw-shadow: var(--gtw-shadow, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04));
+  --_gtw-font: var(
+    --gtw-font,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif
+  );
+  --_gtw-z-index: var(--gtw-z-index, 9999);
+}
+
+/* theme="dark", or theme="auto" under a Tailwind-style html.dark class. */
+.gtw-theme-dark,
+html.dark .gtw-theme-auto {
+  --_gtw-primary: var(--gtw-color-primary, #3b82f6);
+  --_gtw-primary-hover: var(--gtw-color-primary-hover, #60a5fa);
+  --_gtw-primary-text: var(--gtw-color-primary-text, #93c5fd);
+  --_gtw-bg: var(--gtw-color-bg, #111827);
+  --_gtw-surface: var(--gtw-color-surface, #1f2937);
+  --_gtw-surface-strong: var(--gtw-color-surface-strong, #374151);
+  --_gtw-border: var(--gtw-color-border, #374151);
+  --_gtw-border-strong: var(--gtw-color-border-strong, #4b5563);
+  --_gtw-text: var(--gtw-color-text, #f9fafb);
+  --_gtw-text-muted: var(--gtw-color-text-muted, #d1d5db);
+  --_gtw-text-subtle: var(--gtw-color-text-subtle, #9ca3af);
+  --_gtw-active-bg: var(--gtw-color-active-bg, rgba(96, 165, 250, 0.16));
+  --_gtw-overlay: var(--gtw-color-overlay, rgba(0, 0, 0, 0.7));
+  --_gtw-error-bg: var(--gtw-color-error-bg, #450a0a);
+  --_gtw-error-text: var(--gtw-color-error-text, #fecaca);
+  --_gtw-shadow: var(--gtw-shadow, 0 20px 25px -5px rgba(0, 0, 0, 0.5));
+}
+
+/* theme="auto" also follows the OS setting, unless the page opts out with html.light. */
+@media (prefers-color-scheme: dark) {
+  html:not(.light) .gtw-theme-auto {
+    --_gtw-primary-hover: var(--gtw-color-primary-hover, #60a5fa);
+    --_gtw-primary-text: var(--gtw-color-primary-text, #93c5fd);
+    --_gtw-bg: var(--gtw-color-bg, #111827);
+    --_gtw-surface: var(--gtw-color-surface, #1f2937);
+    --_gtw-surface-strong: var(--gtw-color-surface-strong, #374151);
+    --_gtw-border: var(--gtw-color-border, #374151);
+    --_gtw-border-strong: var(--gtw-color-border-strong, #4b5563);
+    --_gtw-text: var(--gtw-color-text, #f9fafb);
+    --_gtw-text-muted: var(--gtw-color-text-muted, #d1d5db);
+    --_gtw-active-bg: var(--gtw-color-active-bg, rgba(96, 165, 250, 0.16));
+    --_gtw-overlay: var(--gtw-color-overlay, rgba(0, 0, 0, 0.7));
+    --_gtw-error-bg: var(--gtw-color-error-bg, #450a0a);
+    --_gtw-error-text: var(--gtw-color-error-text, #fecaca);
+    --_gtw-shadow: var(--gtw-shadow, 0 20px 25px -5px rgba(0, 0, 0, 0.5));
+  }
+}
+
+/* Always on, even when unstyled: hides text visually but keeps it for screen readers. */
+.gtw-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

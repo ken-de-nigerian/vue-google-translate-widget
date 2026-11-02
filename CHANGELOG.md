@@ -7,6 +7,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Unreleased
 
+## 1.2.0 - 2026-11-02
+
+Polish: theming, dark mode, slots, RTL and more. Everything is opt-in except the RTL direction fix; nothing
+changes visually unless you use the new options.
+
+### Added
+
+- **Themes:** `theme: 'light' | 'dark' | 'auto'` (default `'light'`). `auto` follows `html.dark` / `html.light`,
+  then the OS setting.
+- **CSS custom properties:** `--gtw-color-*`, `--gtw-radius`, `--gtw-shadow`, `--gtw-font`, `--gtw-z-index`,
+  `--gtw-offset`, shared by both components.
+- **`unstyled`** prop to style the components from scratch.
+- **Slots:** Widget `trigger`, `header`, `item`, `empty`, `footer`; Button default slot and `item`.
+- **Widget `position`** (any corner) and **`offset`**.
+- **`labels`** prop on the Widget for every remaining piece of text, including accessible names.
+- **`display`** (`native` / `english` / `both`), **`pinned`**, **`rememberRecent`** on both components.
+- **`suggestBrowserLanguage`** on the Widget: a "View this page in …?" prompt in the visitor's language.
+- **`flagStyle: 'emoji'`**: flags without network requests.
+- **`lazy`**: load Google on first open instead of on mount.
+- **`syncDocumentDir`** (default `true`) on the composable and components.
+- **`v-no-translate`** directive (`vNoTranslate`), `flagEmoji()`, `DEFAULT_WIDGET_LABELS`, and types `Theme`,
+  `FlagStyle`, `LanguageDisplay`, `WidgetLabels`.
+- `npm run sync:languages` and a weekly CI job that check Google's live language list against ours.
+
+### Changed
+
+- `<html dir="rtl">` is now set while the page is shown in a right-to-left language (Arabic, Hebrew, Persian,
+  Urdu, …) and restored afterwards; Google only set a class, so layouts stayed left-to-right. Opt out with
+  `syncDocumentDir: false`.
+- The Widget's search icon is now a magnifying glass.
+- The Button's dropdown aligns to the button's inline end, so it opens the right way in RTL layouts.
+- Bundle budget: 12 kB JS / 3 kB CSS (now 11.2 / 2.5 kB brotli).
+
 ## 1.1.0 - 2026-11-02
 
 Every bug in the roadmap's Phase 1 list (B1–B17) plus three found while testing against the real Google script.

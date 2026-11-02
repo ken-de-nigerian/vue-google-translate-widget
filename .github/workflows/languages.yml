@@ -1,0 +1,32 @@
+name: Google language list
+
+# Google adds and renames languages in its Website Translator without notice.
+# This loads the real widget weekly and fails if its list no longer matches
+# tests/fixtures/google-languages.json or a built-in code stops working.
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Compare with the live widget
+        run: npm run sync:languages

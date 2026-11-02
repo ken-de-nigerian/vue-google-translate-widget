@@ -44,7 +44,8 @@
     "test:coverage": "vitest run --coverage",
     "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints .",
     "size": "size-limit",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish",
+    "sync:languages": "node scripts/sync-languages.mjs"
   },
   "keywords": [
     "vue",
@@ -91,6 +92,7 @@
     "eslint": "^9.39.5",
     "eslint-plugin-vue": "^10.12.0",
     "happy-dom": "^21.0.4",
+    "playwright-core": "^1.64.1",
     "prettier": "^3.9.10",
     "publint": "^0.3.25",
     "size-limit": "^14.3.0",
@@ -105,12 +107,12 @@
     {
       "name": "ESM bundle (all exports)",
       "path": "dist/vue-google-translate-widget.js",
-      "limit": "10 kB"
+      "limit": "12 kB"
     },
     {
       "name": "Stylesheet",
       "path": "dist/style.css",
-      "limit": "2 kB"
+      "limit": "3 kB"
     }
   ]
 }

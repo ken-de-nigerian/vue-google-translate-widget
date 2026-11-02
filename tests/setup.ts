@@ -1,6 +1,7 @@
 import { afterEach, vi } from 'vitest'
 import { enableAutoUnmount } from '@vue/test-utils'
 import { resetLoader } from '../src/core/loader'
+import { stopDirectionSync } from '../src/core/page'
 import { resetTranslateState } from '../src/composables/useGoogleTranslate'
 
 const EXPIRED = 'expires=Thu, 01 Jan 1970 00:00:00 UTC'
@@ -23,6 +24,9 @@ enableAutoUnmount(afterEach)
 afterEach(() => {
   resetLoader()
   resetTranslateState()
+  stopDirectionSync()
+  document.documentElement.removeAttribute('dir')
+  window.localStorage.clear()
   clearGoogtransCookie()
   document.head.innerHTML = ''
   document.body.innerHTML = ''

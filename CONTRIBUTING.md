@@ -19,6 +19,7 @@ npm install
 
 | Command | What it does |
 | --- | --- |
+| `npm run dev` | The `playground/` app at http://localhost:5173, using the real Google script. Options can be set in the URL, e.g. `?theme=dark&flagStyle=emoji&position=bottom-right&pinned=fr,de` |
 | `npm test` | Run the test suite once (Vitest + happy-dom) |
 | `npm run test:watch` | Re-run tests on change |
 | `npm run test:coverage` | Tests with a coverage report in `coverage/` |
@@ -28,6 +29,7 @@ npm install
 | `npm run build` | Build `dist/` |
 | `npm run check:publish` | publint + Are the Types Wrong? against the built package |
 | `npm run size` | Bundle size against the budget in `package.json` |
+| `npm run sync:languages` | Compare Google's live language list with `tests/fixtures/google-languages.json` (`-- --write` to update). Needs `npx playwright-core install chromium` once. |
 
 CI runs all of these on every pull request, with tests on Node 20/22/24 × Vue 3.3/3.4/3.5.
 
@@ -37,8 +39,9 @@ CI runs all of these on every pull request, with tests on Node 20/22/24 × Vue 3
 - Every bug fix comes with a test that fails without it.
 - Update the docs (README, `API.md`, `EXAMPLES.md`) in the same PR if you change an option or behaviour.
 - Add a line to `CHANGELOG.md` under **Unreleased**.
-- Tests never load Google's real script; happy-dom is configured to block it. Simulate Google's DOM
-  (for example a `select.goog-te-combo`) instead.
+- Tests never load Google's real script; happy-dom is configured to block it. Use `tests/helpers/fakeGoogle.ts`,
+  which mimics the real widget (its `<select>`, the `translated-ltr/rtl` class, the cookie and the "Show original"
+  button). Check user-visible changes in the playground too.
 
 ## Releasing (maintainers)
 

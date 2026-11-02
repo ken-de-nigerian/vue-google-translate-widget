@@ -1,6 +1,6 @@
 # API Reference
 
-Everything the package exports, as of 1.1.0. For guides and recipes, see the [README](./README.md) and
+Everything the package exports, as of 1.2.0. For guides and recipes, see the [README](./README.md) and
 [EXAMPLES.md](./EXAMPLES.md).
 
 ## Installation
@@ -23,6 +23,10 @@ import '@ken_de_nigerian/vue-google-translate-widget/style.css' // needed for th
 | `DEFAULT_LANGUAGES` | `Language[]`: the built-in list |
 | `LANGUAGE_CODE_ALIASES` | `{ he: 'iw', jv: 'jw' }` |
 | `toGoogleCode(code)` | Converts a modern code to the one Google uses |
+| `vNoTranslate` | Directive: keeps an element out of the translation |
+| `flagEmoji(flag)` | `'fr'` → `'🇫🇷'`; `''` when no emoji exists |
+| `DEFAULT_WIDGET_LABELS` | The Widget's default English labels |
+| `FlagStyle`, `LanguageDisplay`, `Theme`, `WidgetLabels` | Types |
 | `Language`, `TranslateMode`, `TranslateStatus`, `UseGoogleTranslateOptions`, `UseGoogleTranslateReturn` | Types |
 
 ## `useGoogleTranslate(options?)`
@@ -44,6 +48,7 @@ language, loading status and error, and Google's script is loaded only once.
 | `scriptSrc` | `string` | `https://translate.google.com/translate_a/element.js` | Load Google's script from elsewhere |
 | `nonce` | `string` | | CSP nonce for the injected `<script>` and `<style>` |
 | `timeout` | `number` | `10000` | Milliseconds to wait for Google before `status` becomes `'error'` |
+| `syncDocumentDir` | `boolean` | `true` | Set `<html dir="rtl">` while Google shows a right-to-left language, and restore the page's own `dir` afterwards |
 
 `mode`, `hideBranding`, `scriptSrc`, `nonce`, `timeout`, `autoDisplay` and `defaultLanguage` are read when the
 composable is called. The first call that loads Google decides `defaultLanguage` for the page (a different value
@@ -105,6 +110,14 @@ Both components take every composable option as a prop (`default-language`, `inc
 | `errorText` | `string` | `'Translation is unavailable right now. Please try again later.'` | Shown in the popup if Google can't load |
 | `showFlags` | `boolean` | `true` | Show flags; a language with `flag: ''` shows its code instead |
 | `flagUrl` | `(flag: string) => string` | `flag => \`https://flagcdn.com/${flag}.svg\`` | Where flag images come from |
+| `flagStyle` | `'image' \| 'emoji'` | `'image'` | Emoji flags need no network requests; languages without an emoji show their code |
+| `display` | `'native' \| 'english' \| 'both'` | Widget `'both'`, Button `'native'` | Which names to show. Native names are never machine-translated. |
+| `pinned` | `string[]` | | Codes listed first, in this order |
+| `rememberRecent` | `boolean \| number` | `false` | Store recent choices in `localStorage` (`gtw-recent-languages`) and list them after pinned ones. `true` keeps 3. |
+| `theme` | `'light' \| 'dark' \| 'auto'` | `'light'` | `auto`: dark under `html.dark` or a dark OS setting, unless `html.light` |
+| `unstyled` | `boolean` | `false` | No styles at all, except screen-reader-only helpers |
+| `lazy` | `boolean` | `false` | Load Google on first open instead of on mount. A saved translation still loads immediately. |
+| `syncDocumentDir` | `boolean` | `true` | See the composable option |
 
 ### `GoogleTranslateWidget`
 
@@ -115,6 +128,31 @@ A floating button (bottom-left) that opens a modal dialog with a search box and 
 | `title` | `string` | `'Change Language'` |
 | `subtitle` | `string` | `'Select your preferred language for the interface'` |
 | `searchPlaceholder` | `string` | `'Search languages...'` |
+| `position` | `'bottom-left' \| 'bottom-right' \| 'top-left' \| 'top-right'` | `'bottom-left'` |
+| `offset` | `string` (CSS length) | `1rem`, `1.5rem` from 768px |
+| `suggestBrowserLanguage` | `boolean` | `false` |
+| `labels` | `Partial<WidgetLabels>` | `DEFAULT_WIDGET_LABELS` |
+
+```ts
+interface WidgetLabels {
+  open: string                            // 'Change language' (floating button's accessible name)
+  close: string                           // 'Close'
+  noResults: string                       // 'No languages found'
+  noResultsHint: string                   // 'Try a different search term'
+  results: (count: number) => string      // '3 languages' (announced to screen readers)
+  suggestion: (language: Language) => string // 'View this page in Français?'
+  accept: string                          // 'Translate'
+  dismiss: string                         // 'No thanks'
+}
+```
+
+**Browser-language prompt** (`suggestBrowserLanguage`): on load, if the page isn't translated, the first of
+`navigator.languages` that you offer (exact regional code first, then the base language) is suggested, unless the
+visitor's top preference is already the page language. Dismissing it is remembered in `localStorage`
+(`gtw-suggestion-dismissed`). The prompt itself is never translated.
+
+Slots: `trigger` (`isOpen`, `currentLanguage`), `header` (`close`, `titleId`: put `:id="titleId"` on your heading so
+the dialog stays labelled), `item` (`language`, `selected`, `active`), `empty` (`query`), `footer` (`close`).
 
 Accessibility: the button has `aria-haspopup="dialog"` and `aria-expanded`; the modal is a `role="dialog"` with
 `aria-modal`, labelled by its title; the search box is a combobox controlling a listbox via
@@ -130,6 +168,9 @@ A button that opens a dropdown listbox.
 | `buttonText` | `string` | `'Translate'` |
 | `buttonClass` | `string` | |
 
+Slots: default (`isOpen`, `currentLanguage`, `current`: the `Language` object) for the button's content, and `item`
+(`language`, `selected`, `active`).
+
 Accessibility: `aria-haspopup="listbox"` and `aria-expanded`; ↓/↑ open the list; ↑ ↓ Home End move; Enter/Space
 choose; Esc closes and returns focus; Tab closes. While a change is applied the button is `aria-disabled` (not
 `disabled`, so focus isn't lost).
@@ -144,6 +185,15 @@ choose; Esc closes and returns focus; Tab closes. While a change is applied the 
 | `error` | `Error` | Google couldn't load, or a change failed |
 | `open` / `close` | | Popup opened / closed |
 | `languageChanged` | `string` | **Button only, deprecated**: use `change`. Removed in 2.0. |
+
+## `vNoTranslate`
+
+```vue
+<span v-no-translate>PayZephyr</span>          <!-- never translated -->
+<span v-no-translate="isBrand">{{ name }}</span> <!-- conditional -->
+```
+
+Adds `translate="no"` and `class="notranslate"`, including in server-rendered HTML.
 
 ## Types
 
@@ -326,6 +376,11 @@ You can override styles globally:
 - `.gtw-flag` - Flag image; `.gtw-flag-code` - Code badge for languages without a flag
 - `.gtw-language-native`, `.gtw-language-name` - Native and English names
 - `.gtw-no-results` - Empty state
+- `.gtw-modal-footer` - Wraps the `footer` slot
+- `.gtw-flag-emoji` - Emoji flag
+- `.gtw-suggestion`, `.gtw-suggestion-text`, `.gtw-suggestion-accept`, `.gtw-suggestion-dismiss` - Browser-language prompt
+- `.gtw-pos-*` - Corner of the floating button and prompt
+- Root: `.google-translate-widget`, plus `.gtw-theme-light|dark|auto` and `.gtw-styled` (absent when `unstyled`)
 
 #### GoogleTranslateButton
 - `.gtb-button` - Main button (`[aria-disabled="true"]` while changing)
@@ -334,7 +389,14 @@ You can override styles globally:
 - `.gtb-dropdown-item` - An option; `.gtb-dropdown-item-active` (current), `.gtb-dropdown-item-focused` (keyboard
   position)
 - `.gtb-flag` / `.gtb-flag-code` - Flag image / code badge
-- `.gtb-language-name` - Native name
+- `.gtb-language-name` - Native name; `.gtb-language-english` - English name; `.gtb-names` wraps both
+- `.gtb-flag-emoji` - Emoji flag; `.gtb-chevron` / `.gtb-chevron-open` - The arrow
+- Root: `.gtb-container`, plus `.gtw-theme-*` and `.gtb-styled` (absent when `unstyled`)
+
+Each rule is scoped (Vue adds a `[data-v-…]` attribute) and gated by `:where(.gtw-styled)` / `:where(.gtb-styled)`,
+which adds no specificity of its own. So a rule like `.gtw-modal` has the specificity of two classes: override it
+with two classes of your own (e.g. `.my-site .gtw-modal { ... }`) or `!important`. Colours, radius, font and z-index
+are easier to change with the `--gtw-*` custom properties listed in the README.
 
 ## Notes
 
