@@ -11,16 +11,19 @@ A lightweight, customizable Vue 3 component and composable library for integrati
 
 ## Features
 
-- 🌍 **100+ Languages** - Support for all Google Translate languages
-- 🎨 **Customizable UI** - Two beautiful components or use the composable to build your own
-- 🪝 **Vue 3 Composable** - Full access to translation state and methods
-- 💪 **TypeScript** - Fully typed for better developer experience
-- 🎯 **Zero Dependencies** - Only requires Vue 3 (flag images load from `flagcdn.com` unless you set `showFlags: false`)
-- 📦 **Small Bundle** - About 5 kB of JavaScript and 1.5 kB of CSS (brotli), checked in CI
+- 🌍 **100+ Languages** - Native names, searchable, with codes checked against Google's live widget
+- ⚡ **No page reloads** - Switches language in place and restores the original the same way
+- ♿ **Accessible** - Keyboard navigation, focus management and ARIA roles, checked with axe-core in CI
+- 🧹 **Clean page** - Google's banner, tooltips and highlight are hidden for you (`hideBranding`)
+- 🎨 **Customizable UI** - Two ready-made components, or use the composable to build your own
+- 🪝 **Vue 3 Composable** - Shared, reactive state: current language, loading status, errors
+- 💪 **TypeScript** - Fully typed
+- 🎯 **Zero Dependencies** - Only requires Vue 3 (flag images load from `flagcdn.com`; see `flagUrl` / `showFlags`)
+- 📦 **Small Bundle** - About 9 kB of JavaScript and 2 kB of CSS (brotli), checked in CI
 - 🎭 **SSR-safe** - Google's script only loads in the browser, on mount; use a client-only plugin in Nuxt
 
-> **Roadmap:** full keyboard navigation, built-in dark mode/theming and switching languages without a page reload
-> are planned for 1.1–1.2. See [ROADMAP.md](ROADMAP.md).
+> **Roadmap:** theming/dark mode, RTL page direction and a Nuxt module are planned for 1.2–2.0.
+> See [ROADMAP.md](ROADMAP.md).
 
 ## Installation
 
@@ -95,112 +98,93 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <select 
-      :value="currentLanguage" 
-      @change="e => changeLanguage(e.target.value)"
-      :disabled="isChangingLanguage">
-      <option v-for="lang in languages" :key="lang.code" :value="lang.code">
-        {{ lang.nativeName }}
-      </option>
-    </select>
-  </div>
-
-  <!-- Hidden Google Translate Element -->
-  <div id="google_translate_element" style="display: none"></div>
+  <select
+    :value="currentLanguage"
+    :disabled="isChangingLanguage"
+    @change="e => changeLanguage(e.target.value)">
+    <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+      {{ lang.nativeName }}
+    </option>
+  </select>
 </template>
 ```
 
-## Hiding Google Translate Branding
+You don't need to add any hidden element: the package creates one hidden host for Google and shares it between
+every component and composable on the page.
 
-By default, Google Translate adds branding elements (logo, "Powered by Google" text, banner) to your page. You can hide these by adding global CSS styles to your application.
+## Google's Branding
 
-### Adding Global Styles
+Google's widget adds a banner at the top of the page (pushing your layout down by 40px), hover tooltips and a
+highlight on translated text. **These are hidden automatically**: the package injects one small stylesheet the first
+time it loads. Pass `:hide-branding="false"` (or `hideBranding: false` to the composable) to keep Google's UI.
 
-Add these styles to your **global CSS file** or in a `<style>` tag in your root component (e.g., `App.vue`):
-
-```vue
-<style>
-/* Hide Google Translate Branding */
-.goog-logo-link {
-  display: none !important;
-}
-
-.goog-te-gadget {
-  color: transparent !important;
-}
-
-.goog-te-banner-frame.skiptranslate,
-.goog-te-banner-frame {
-  display: none !important;
-}
-
-.VIpgJd-ZVi9od-l4eHX-hSRGPd {
-  display: none !important;
-}
-
-.goog-te-gadget img {
-  display: none !important;
-}
-
-body > .skiptranslate,
-iframe.skiptranslate {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
-}
-</style>
-```
-
-### Important Notes About Google Styles
-
-⚠️ **Please note:** Google Translate's CSS class names and HTML structure may change over time as Google updates their service. If the branding starts appearing again after a Google update:
-
-1. **Inspect the elements** using your browser's DevTools to find the current class names
-2. **Update the CSS selectors** accordingly
-3. **Use `!important`** to ensure your styles override Google's defaults
-4. **Test regularly** to ensure branding remains hidden
-
-These styles work as of November 2025 but may need adjustment in the future.
-
-### Alternative: Custom Styling
-
-You can also customize individual Google Translate elements to match your design instead of hiding them completely. Inspect the elements and apply your own styles.
+Google changes its class names from time to time, so this is best effort. If something reappears after a Google
+update, please [open an issue](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues) with a
+screenshot.
 
 ## Component Props
+
+Both components accept these:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultLanguage` | `string` | `'en'` | The language your page is written in |
+| `includedLanguages` | `string[]` | all | Language codes to offer (reactive) |
+| `languages` | `Language[]` | built-in list | Your own language list (reactive) |
+| `language` | `string` | | Current language, for `v-model:language` |
+| `errorText` | `string` | `'Translation is unavailable right now…'` | Shown if Google can't load |
+| `showFlags` | `boolean` | `true` | Show flags (or a code badge when a language has none) |
+| `flagUrl` | `(flag: string) => string` | flagcdn.com | Where flag images come from, e.g. your own CDN |
+| `mode` | `'live' \| 'reload'` | `'live'` | Translate in place, or reload the page like 1.0 did |
+| `reloadOnRestore` | `boolean` | `false` | Reload instead of restoring the original text in place |
+| `hideBranding` | `boolean` | `true` | Hide Google's banner, tooltips and highlight |
+| `scriptSrc` | `string` | Google's URL | Load Google's script from somewhere else (e.g. a proxy) |
+| `nonce` | `string` | | CSP nonce for the injected `<script>` and `<style>` |
+| `timeout` | `number` | `10000` | Milliseconds to wait for Google before showing the error |
 
 ### GoogleTranslateWidget
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `defaultLanguage` | `string` | `'en'` | Default page language |
-| `includedLanguages` | `string[]` | `undefined` | Array of language codes to include |
-| `languages` | `Language[]` | All languages | Custom language list |
 | `title` | `string` | `'Change Language'` | Modal title |
 | `subtitle` | `string` | `'Select your preferred language for the interface'` | Modal subtitle |
-| `searchPlaceholder` | `string` | `'Search languages...'` | Search input placeholder |
-| `showFlags` | `boolean` | `true` | Show country flags |
+| `searchPlaceholder` | `string` | `'Search languages...'` | Search placeholder (also its accessible label) |
 
 ### GoogleTranslateButton
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `defaultLanguage` | `string` | `'en'` | Default page language |
-| `includedLanguages` | `string[]` | `undefined` | Array of language codes to include |
-| `languages` | `Language[]` | All languages | Custom language list |
 | `buttonText` | `string` | `'Translate'` | Button text |
 | `buttonClass` | `string` | `undefined` | Additional CSS classes |
 
 ### Events
 
-#### GoogleTranslateButton
+Both components emit:
 
-- `languageChanged` - Emitted when language changes
-  ```vue
-  <GoogleTranslateButton @languageChanged="handleLanguageChange" />
-  ```
+| Event | Payload | When |
+|-------|---------|------|
+| `change` | `language: string` | After Google has applied a new language |
+| `update:language` | `language: string` | Same, for `v-model:language` (also on load if the page is already translated) |
+| `ready` | | Google's script has loaded |
+| `error` | `error: Error` | Google couldn't load, or a language change failed |
+| `open` / `close` | | The modal or dropdown opened / closed |
+
+`GoogleTranslateButton` also still emits `languageChanged` (deprecated, use `change`; removed in 2.0).
+
+```vue
+<GoogleTranslateButton @change="lang => analytics.track('language', { lang })" />
+```
+
+### Keyboard
+
+| Key | Widget (search box focused) | Button (list focused) |
+|-----|-----------------------------|-----------------------|
+| `↓` / `↑` | Move through the results | Open the list / move through it |
+| `Home` / `End` | First / last result | First / last language |
+| `Enter` | Choose | Choose |
+| `Space` | (types a space) | Choose |
+| `Esc` | Close, focus back on the button | Close, focus back on the button |
+| `Tab` | Stays inside the dialog | Closes the list |
 
 ## Composable Options
 
@@ -208,10 +192,16 @@ You can also customize individual Google Translate elements to match your design
 
 ```typescript
 interface UseGoogleTranslateOptions {
-  defaultLanguage?: string
-  languages?: Language[]
-  includedLanguages?: string[]
-  autoDisplay?: boolean
+  defaultLanguage?: string                              // 'en'
+  languages?: MaybeRefOrGetter<Language[] | undefined>   // reactive
+  includedLanguages?: MaybeRefOrGetter<string[] | undefined> // reactive
+  autoDisplay?: boolean                                 // false
+  mode?: 'live' | 'reload'                              // 'live'
+  reloadOnRestore?: boolean                             // false
+  hideBranding?: boolean                                // true
+  scriptSrc?: string
+  nonce?: string
+  timeout?: number                                      // 10000
 }
 ```
 
@@ -219,14 +209,20 @@ interface UseGoogleTranslateOptions {
 
 ```typescript
 interface UseGoogleTranslateReturn {
-  currentLanguage: Ref<string>
+  currentLanguage: Ref<string>          // shared by every instance on the page
   isChangingLanguage: Ref<boolean>
-  languages: Language[]
-  changeLanguage: (lang: string) => void
-  initializeTranslate: () => void
+  languages: Language[]                 // reactive array
+  status: Ref<'idle' | 'loading' | 'ready' | 'error'>
+  error: Ref<Error | null>
+  isReady: ComputedRef<boolean>
+  changeLanguage: (lang: string) => Promise<void>  // rejects if Google can't apply it
+  restoreOriginal: () => Promise<void>
+  initializeTranslate: () => Promise<void>         // never rejects; check status/error
   getCurrentLanguage: () => string
 }
 ```
+
+See [API.md](./API.md) for details.
 
 ## Examples
 
@@ -274,7 +270,21 @@ const handleLanguageChange = (language) => {
 </script>
 
 <template>
-  <GoogleTranslateButton @languageChanged="handleLanguageChange" />
+  <GoogleTranslateButton @change="handleLanguageChange" />
+</template>
+```
+
+### Two-way Binding
+
+```vue
+<script setup>
+import { ref } from 'vue'
+const language = ref('en')
+</script>
+
+<template>
+  <GoogleTranslateWidget v-model:language="language" />
+  <button @click="language = 'fr'">Français</button>
 </template>
 ```
 
@@ -317,15 +327,21 @@ The package includes 100+ languages. Here are some common ones:
 
 See [API.md](./API.md) for the complete language list.
 
+Google's widget still uses the legacy codes **`iw`** for Hebrew and **`jw`** for Javanese. The built-in list uses
+those, and `he` / `jv` are accepted everywhere and converted for you.
+
 ## How It Works
 
-This package uses Google's free translation widget service. When a user selects a language:
+This package drives Google's free Website Translator for you:
 
-1. The page content is sent to Google Translate
-2. Google returns the translated content
-3. The page is reloaded with the translated text
+1. Google's script is loaded once per page into a hidden element (shared by every component).
+2. When a user picks a language, the package sets Google's own language selector, and Google translates the page
+   **in place**: no reload. The choice is stored in the `googtrans` cookie, so it survives navigation and reloads.
+3. Choosing the page's original language clicks Google's own "Show original" button, again without a reload.
+4. Elements with `class="notranslate"` or `translate="no"` are left alone (the language names in the UI use this).
 
-**Note:** This translates the entire page content, not individual strings. For app-specific translations, consider using vue-i18n instead.
+**Note:** This translates the entire page content with machine translation. For hand-curated, app-specific
+translations, use vue-i18n instead.
 
 ## Browser Support
 
@@ -404,12 +420,15 @@ On Windows, if you get `EPERM` errors during installation:
 
 ### Google Translate Branding Still Showing
 
-If Google Translate branding is still visible after adding the CSS:
+Branding is hidden automatically unless you set `hideBranding: false`. If Google has changed its markup and
+something shows again, inspect it in DevTools, hide it with your own global CSS for now, and please
+[open an issue](https://github.com/ken-de-nigerian/vue-google-translate-widget/issues).
 
-1. Make sure the styles are in your **global CSS** file or root component
-2. Check that you're using `!important` on the styles
-3. Inspect the Google Translate elements in DevTools - Google may have changed their class names
-4. Update the CSS selectors to match the current Google Translate markup
+### "Translation is unavailable right now"
+
+Google's script didn't load within `timeout` ms. Common causes: an ad or privacy blocker, a Content Security Policy
+that doesn't allow `translate.google.com` / `translate.googleapis.com` / `translate-pa.googleapis.com`, or a network
+that blocks Google. Listen for the `error` event to log the reason.
 
 ## Contributing
 

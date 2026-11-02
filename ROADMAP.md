@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: Phase 0 complete and verified in CI; 1.0.2 waiting to be published to npm. Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: Phases 0–1 complete and verified (1.0.2 and 1.1.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -80,9 +80,24 @@ The current docs claim things the code does not do. Until the features ship, the
 
 ---
 
-## Phase 1: Bug fixes (`1.1.0`)
+## Phase 1: Bug fixes (`1.1.0`) ✅ done
 
-Each bug: what's wrong, where, the fix, and the test that proves it. **Every fix ships with a regression test.**
+**Status (2026-11-02):** every bug below is fixed, has a regression test (100 tests; three fixes were
+mutation-checked to make sure their tests fail without them), and the user-visible ones were verified against the
+real Google script in the `playground/` app. Exceptions are called out inline.
+
+Found while testing, also fixed in 1.1.0:
+
+| # | Bug | Verified by |
+| --- | --- | --- |
+| B18 | A `#googtrans(..)` hash overrode a newly chosen language | unit test |
+| B19 | Google translated our own language lists ("Deutsch" → "Allemand") | browser + unit test |
+| B20 | Button: focus fell to `<body>` after choosing (button was `disabled` mid-change) | browser + unit test |
+
+Learned from probing the real widget (2026-11-02): `InlineLayout.SIMPLE` renders no `<select>`, so 1.0's
+in-place path never ran; only the first `TranslateElement` on a page renders; switching via the default layout's
+`<select>` takes ~1.2 s warm, ~13 s for the first translation; "Show original" restores in place; Google adds
+`translated-rtl` but no `dir` attribute; it offers 248 languages.
 
 ### Architecture change that unlocks most fixes
 
@@ -106,23 +121,23 @@ logs a dev-only warning.
 
 | # | Severity | Bug | Location |
 | --- | --- | --- | --- |
-| B1 | High | Click-outside listener never removed (memory leak) | `GoogleTranslateButton.vue:51-63` |
-| B2 | High | Duplicate `id="google_translate_element"`; second instance's options silently ignored | both components, composable `loadGoogleTranslateScript` |
-| B3 | High | Full page reload on every language change | composable `changeLanguage` |
-| B4 | High | Restoring the original language fails on subdomains (parent-domain cookie not cleared) | composable `changeLanguage` |
-| B5 | Medium | Options/props aren't reactive; `languages` is a static array | composable, both components |
-| B6 | Medium | `currentLanguage` initialises to hard-coded `'en'`, not `defaultLanguage` | composable |
-| B7 | Medium | No ready/error state; blocked script (ad-blocker, CSP, region) fails silently | composable `loadGoogleTranslateScript` |
-| B8 | Medium | `setInterval` polling (100 ms × 5 s), not cleaned up on unmount | composable `initializeTranslate` |
-| B9 | Medium | Language codes may not match Google's widget (`he`/`iw`, `jv`/`jw`) | `DEFAULT_LANGUAGES` |
-| B10 | Medium | `languageChanged` emitted before the change happens; Widget emits nothing at all | `GoogleTranslateButton.vue:39`, Widget |
-| B11 | Medium | Accessibility: items are `<div @click>`; no keyboard, focus trap, Esc, roles | both components |
-| B12 | Low | `aria-expanded` on the float button is always `false` (button is `v-if="!isOpen"`) | `GoogleTranslateWidget.vue:77-82` |
-| B13 | Low | Protocol-relative script URL `//translate.google.com/...` | composable |
-| B14 | Low | Google's banner shifts `<body>` down (`top: 40px`); no built-in fix | n/a |
-| B15 | Low | Background scrolls while the modal is open | Widget |
-| B16 | Low | Wrong or contested flags (Catalan/Basque/Galician → 🇪🇸, Esperanto → 🇪🇺, Kurdish → 🇮🇶) and third-party image requests | both components |
-| B17 | Low | Opening one `GoogleTranslateButton` doesn't close another on the same page | Button |
+| B1 ✅ | High | Click-outside listener never removed (memory leak) | `GoogleTranslateButton.vue:51-63` |
+| B2 ✅ | High | Duplicate `id="google_translate_element"`; second instance's options silently ignored | both components, composable `loadGoogleTranslateScript` |
+| B3 ✅ | High | Full page reload on every language change | composable `changeLanguage` |
+| B4 ✅ | High | Restoring the original language fails on subdomains (parent-domain cookie not cleared) | composable `changeLanguage` |
+| B5 ✅ | Medium | Options/props aren't reactive; `languages` is a static array | composable, both components |
+| B6 ✅ | Medium | `currentLanguage` initialises to hard-coded `'en'`, not `defaultLanguage` | composable |
+| B7 ✅ | Medium | No ready/error state; blocked script (ad-blocker, CSP, region) fails silently | composable `loadGoogleTranslateScript` |
+| B8 ✅ | Medium | `setInterval` polling (100 ms × 5 s), not cleaned up on unmount | composable `initializeTranslate` |
+| B9 ✅ | Medium | Language codes may not match Google's widget (`he`/`iw`, `jv`/`jw`) | `DEFAULT_LANGUAGES` |
+| B10 ✅ | Medium | `languageChanged` emitted before the change happens; Widget emits nothing at all | `GoogleTranslateButton.vue:39`, Widget |
+| B11 ✅ | Medium | Accessibility: items are `<div @click>`; no keyboard, focus trap, Esc, roles | both components |
+| B12 ✅ | Low | `aria-expanded` on the float button is always `false` (button is `v-if="!isOpen"`) | `GoogleTranslateWidget.vue:77-82` |
+| B13 ✅ | Low | Protocol-relative script URL `//translate.google.com/...` | composable |
+| B14 ✅ | Low | Google's banner shifts `<body>` down (`top: 40px`); no built-in fix | n/a |
+| B15 ✅ | Low | Background scrolls while the modal is open | Widget |
+| B16 ◐ | Low | Wrong or contested flags (Catalan/Basque/Galician → 🇪🇸, Esperanto → 🇪🇺, Kurdish → 🇮🇶) and third-party image requests | both components |
+| B17 ✅ | Low | Opening one `GoogleTranslateButton` doesn't close another on the same page | Button |
 
 #### B1: listener leak
 - **Cause:** `onMounted(() => { …; return () => removeEventListener(…) })`. Vue ignores the return value of `onMounted`.
@@ -148,10 +163,12 @@ logs a dev-only warning.
 - **Fix:** `core/cookies.ts#clearGoogtrans()` expires the cookie for: no domain, `hostname`, `.hostname`, and every
   parent suffix (`.example.com` for `a.b.example.com`), stopping before the public suffix. Same list when writing.
 - **Test:** table-driven over `localhost`, `example.com`, `www.example.com`, `a.b.example.co.uk`.
+- *Note:* verified by unit tests; a real multi-level domain can't be exercised on `localhost`.
 
 #### B5: non-reactive options
-- **Fix:** accept `MaybeRefOrGetter` for `includedLanguages`, `languages` and `defaultLanguage`; expose `languages` as a
-  `ComputedRef`. Components pass getters (`() => props.includedLanguages`).
+- **Fix (as built):** `includedLanguages` and `languages` accept refs/getters; `languages` stays a (reactive) array
+  so existing code keeps working. `defaultLanguage` stays a plain value: Google fixes the page language when its
+  script loads, so changing it later couldn't work anyway.
 - **Test:** change the prop after mount → rendered list updates.
 
 #### B6: wrong initial language
@@ -173,7 +190,9 @@ logs a dev-only warning.
 - **Fix:** write a script (`scripts/sync-languages.ts`) that loads the real widget in Playwright, reads the
   `.goog-te-combo` `<option>` values, and diffs them against `DEFAULT_LANGUAGES`. The legacy widget is known to use
   `iw` (Hebrew) and `jw` (Javanese); confirm and alias them, so users can pass either code.
-- Run the script in a scheduled CI job (weekly) so we notice when Google changes the list.
+- [ ] Run the script in a scheduled CI job (weekly) so we notice when Google changes the list. **Not done:**
+  1.1.0 ships a dated snapshot (`tests/fixtures/google-languages.json`) that CI checks every code against.
+  The automated weekly refresh moves to Phase 2.
 - **Test:** unit test for the alias map; snapshot of the default list.
 
 #### B10: events
@@ -187,7 +206,9 @@ logs a dev-only warning.
 - Search input gets a real `<label>` (visually hidden) and `aria-controls` the listbox; results count announced via `aria-live`.
 - Button: `aria-haspopup="listbox"`, `aria-expanded` bound to the real state.
 - Respect `prefers-reduced-motion`.
-- **Test:** `vitest-axe` on both components; keyboard interaction tests.
+- **Test:** axe-core (directly, not `vitest-axe`) on both components; keyboard interaction tests. Real-keyboard
+  checks in the browser pane were partly blocked by the pane being hidden (no animation frames); the same flows
+  pass with in-page key events and in the unit tests.
 
 #### B13: script URL
 - **Fix:** always `https://`; add a `scriptSrc` option (for proxies) and a `nonce` option for strict CSP.
@@ -200,10 +221,11 @@ logs a dev-only warning.
 #### B15: scroll lock
 - **Fix:** lock `document.body` overflow while the modal is open, compensating for the scrollbar width; restore on close/unmount.
 
-#### B16: flags
-- **Fix:** add a `flag` option: `'none' | 'emoji' | 'image' | (lang) => string`. Default to **no flags + native name**
-  (the i18n best practice). For `'image'`, ship a tree-shakeable set of local SVGs instead of hot-linking `flagcdn.com`.
-  Fix the contested mappings, and let `flag: null` per language.
+#### B16: flags ◐ partly done
+- **Done in 1.1.0:** contested mappings fixed; `flag: ''` per language shows a code badge; `flagUrl` prop lets you
+  self-host the images instead of hot-linking `flagcdn.com`.
+- **Moved to Phase 2:** an emoji option and a bundled, tree-shakeable SVG set. Moved to 2.0 (breaking): flags
+  off by default.
 
 ---
 
@@ -221,6 +243,8 @@ logs a dev-only warning.
 - **Language display.** `display: 'native' | 'english' | 'both'`; `pinned: string[]` (shown first); "recently used" (localStorage, opt-in).
 - **Browser language suggestion.** `suggestBrowserLanguage` shows a non-blocking prompt ("View this page in Français?") based on `navigator.languages`.
 - **`v-no-translate` directive.** Adds `translate="no"` + `class="notranslate"`, so brand names and code blocks stay untranslated.
+- **Moved from Phase 1:** a weekly CI job that re-captures Google's language list and fails on drift (B9); an
+  emoji flag option and a bundled SVG flag set (B16).
 - **Performance.** `lazy: true` loads Google's script only on first open, not on mount (a big Lighthouse win).
   Virtualise the list when there are more than 60 items.
 

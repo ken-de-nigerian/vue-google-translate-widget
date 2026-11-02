@@ -31,6 +31,14 @@
     "declarationDir": "./dist",
     "emitDeclarationOnly": false
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "playground/**/*.ts",
+    "playground/**/*.vue"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

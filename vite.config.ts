@@ -41,7 +41,15 @@ export default defineConfig({
     environment: 'happy-dom',
     environmentOptions: {
       // Tests must never fetch Google's real script; treat the blocked load as a no-op.
-      happyDOM: { settings: { disableJavaScriptFileLoading: true, handleDisabledFileLoadingAsSuccess: true } },
+      happyDOM: {
+        settings: {
+          disableJavaScriptFileLoading: true,
+          handleDisabledFileLoadingAsSuccess: true,
+          // Google's "Show original" button lives in a same-origin about:blank iframe.
+          disableIframePageLoading: false,
+          enableIframePageLoading: true,
+        },
+      },
     },
     include: ['tests/**/*.test.ts'],
     restoreMocks: true,

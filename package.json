@@ -31,9 +31,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite playground --config vite.config.ts",
     "build": "vite build && node scripts/copy-cts-types.mjs",
-    "preview": "vite preview",
+    "preview": "vite preview playground --config vite.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -86,7 +86,8 @@
     "@vitest/coverage-v8": "^3.2.7",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.9.0",
-    "@vue/test-utils": "^2.5.1",
+    "@vue/test-utils": "^2.4.6",
+    "axe-core": "^4.14.0",
     "eslint": "^9.39.5",
     "eslint-plugin-vue": "^10.12.0",
     "happy-dom": "^21.0.4",
@@ -104,7 +105,7 @@
     {
       "name": "ESM bundle (all exports)",
       "path": "dist/vue-google-translate-widget.js",
-      "limit": "7.5 kB"
+      "limit": "10 kB"
     },
     {
       "name": "Stylesheet",

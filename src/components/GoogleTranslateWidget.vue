@@ -1,15 +1,35 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useGoogleTranslate, type Language } from '../composables/useGoogleTranslate'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { toGoogleCode, type Language } from '../core/languages'
+import { useGoogleTranslate, type TranslateMode } from '../composables/useGoogleTranslate'
+import {
+  createId,
+  DEFAULT_ERROR_TEXT,
+  DEFAULT_FLAG_URL,
+  lockScroll,
+  trapFocus,
+  unlockScroll,
+  useListNavigation,
+} from './shared'
 
 interface Props {
   defaultLanguage?: string
   includedLanguages?: string[]
   languages?: Language[]
+  /** Use with `v-model:language`. On load, the page's current translation wins. */
+  language?: string
   title?: string
   subtitle?: string
   searchPlaceholder?: string
+  errorText?: string
   showFlags?: boolean
+  flagUrl?: (flag: string) => string
+  mode?: TranslateMode
+  reloadOnRestore?: boolean
+  hideBranding?: boolean
+  scriptSrc?: string
+  nonce?: string
+  timeout?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,23 +37,55 @@ const props = withDefaults(defineProps<Props>(), {
   title: 'Change Language',
   subtitle: 'Select your preferred language for the interface',
   searchPlaceholder: 'Search languages...',
+  errorText: DEFAULT_ERROR_TEXT,
   showFlags: true,
+  flagUrl: DEFAULT_FLAG_URL,
+  mode: 'live',
+  reloadOnRestore: false,
+  hideBranding: true,
 })
 
-const { currentLanguage, isChangingLanguage, languages, changeLanguage, initializeTranslate } = useGoogleTranslate({
-  defaultLanguage: props.defaultLanguage,
-  includedLanguages: props.includedLanguages,
-  languages: props.languages,
-})
+const emit = defineEmits<{
+  change: [language: string]
+  'update:language': [language: string]
+  ready: []
+  error: [error: Error]
+  open: []
+  close: []
+}>()
 
+const { currentLanguage, isChangingLanguage, languages, status, error, changeLanguage, initializeTranslate } =
+  useGoogleTranslate({
+    defaultLanguage: props.defaultLanguage,
+    includedLanguages: () => props.includedLanguages,
+    languages: () => props.languages,
+    mode: props.mode,
+    reloadOnRestore: props.reloadOnRestore,
+    hideBranding: props.hideBranding,
+    scriptSrc: props.scriptSrc,
+    nonce: props.nonce,
+    timeout: props.timeout,
+  })
+
+const baseId = createId('gtw')
+const dialogId = `${baseId}-dialog`
+const titleId = `${baseId}-title`
+const subtitleId = `${baseId}-subtitle`
+const searchId = `${baseId}-search`
+const listId = `${baseId}-list`
+const optionId = (index: number) => `${baseId}-option-${index}`
+
+const triggerRef = ref<HTMLButtonElement | null>(null)
+const dialogRef = ref<HTMLElement | null>(null)
+const searchRef = ref<HTMLInputElement | null>(null)
 const searchQuery = ref('')
 const isOpen = ref(false)
 
+const isCurrent = (language: Language) => toGoogleCode(language.code) === currentLanguage.value
+
 const filteredLanguages = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return languages
-  }
-  const query = searchQuery.value.toLowerCase()
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return languages
   return languages.filter(
     lang =>
       lang.name.toLowerCase().includes(query) ||
@@ -42,26 +94,97 @@ const filteredLanguages = computed(() => {
   )
 })
 
-const toggleWidget = () => {
-  isOpen.value = !isOpen.value
-  if (!isOpen.value) {
-    searchQuery.value = ''
+const resultsAnnouncement = computed(() => {
+  const count = filteredLanguages.value.length
+  return count === 1 ? '1 language' : `${count} languages`
+})
+
+const selectLanguage = async (code: string) => {
+  if (isChangingLanguage.value) return
+  try {
+    await changeLanguage(code)
+    emit('change', currentLanguage.value)
+    emit('update:language', currentLanguage.value)
+    closeWidget()
+  } catch (cause) {
+    emit('error', cause as Error)
   }
 }
 
-const closeWidget = () => {
+const {
+  activeIndex,
+  setActive,
+  onKeydown: onListKeydown,
+} = useListNavigation({
+  count: () => filteredLanguages.value.length,
+  optionId,
+  onSelect: index => selectLanguage(filteredLanguages.value[index].code),
+  onClose: () => closeWidget(),
+  spaceSelects: false,
+})
+
+const activeDescendant = computed(() =>
+  activeIndex.value >= 0 && activeIndex.value < filteredLanguages.value.length
+    ? optionId(activeIndex.value)
+    : undefined,
+)
+
+watch(searchQuery, () => setActive(filteredLanguages.value.length ? 0 : -1))
+
+const openWidget = async () => {
+  if (isOpen.value) return
+  isOpen.value = true
+  lockScroll()
+  emit('open')
+  await nextTick()
+  setActive(filteredLanguages.value.findIndex(isCurrent))
+  searchRef.value?.focus()
+}
+
+const closeWidget = async () => {
+  if (!isOpen.value) return
   isOpen.value = false
   searchQuery.value = ''
+  unlockScroll()
+  emit('close')
+  await nextTick()
+  triggerRef.value?.focus()
 }
 
-const handleLanguageChange = (lang: string) => {
-  if (!isChangingLanguage.value) {
-    changeLanguage(lang)
+const onDialogKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeWidget()
+    return
   }
+  trapFocus(event, dialogRef.value)
 }
 
-onMounted(() => {
-  initializeTranslate()
+watch(
+  status,
+  value => {
+    if (value === 'ready') emit('ready')
+    if (value === 'error' && error.value) emit('error', error.value)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.language,
+  value => {
+    if (value && toGoogleCode(value) !== currentLanguage.value) selectLanguage(value)
+  },
+)
+
+onMounted(async () => {
+  await initializeTranslate()
+  if (props.language !== undefined && toGoogleCode(props.language) !== currentLanguage.value) {
+    emit('update:language', currentLanguage.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (isOpen.value) unlockScroll()
 })
 </script>
 
@@ -69,12 +192,16 @@ onMounted(() => {
   <div class="google-translate-widget">
     <!-- Floating Button -->
     <button
-      v-if="!isOpen"
+      ref="triggerRef"
+      type="button"
       class="gtw-float-button"
-      :aria-label="isOpen ? 'Close translate widget' : 'Open translate widget'"
+      aria-label="Change language"
+      aria-haspopup="dialog"
       :aria-expanded="isOpen"
-      @click="toggleWidget">
+      :aria-controls="isOpen ? dialogId : undefined"
+      @click="openWidget">
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -96,14 +223,24 @@ onMounted(() => {
     <!-- Modal -->
     <Transition name="gtw-modal">
       <div v-if="isOpen" class="gtw-modal-overlay" @click="closeWidget">
-        <div class="gtw-modal" @click.stop>
+        <div
+          :id="dialogId"
+          ref="dialogRef"
+          class="gtw-modal"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          :aria-describedby="subtitleId"
+          @click.stop
+          @keydown="onDialogKeydown">
           <div class="gtw-modal-header">
             <div>
-              <h2 class="gtw-modal-title">{{ title }}</h2>
-              <p class="gtw-modal-subtitle">{{ subtitle }}</p>
+              <h2 :id="titleId" class="gtw-modal-title">{{ title }}</h2>
+              <p :id="subtitleId" class="gtw-modal-subtitle">{{ subtitle }}</p>
             </div>
-            <button class="gtw-close-button" aria-label="Close" @click="closeWidget">
+            <button type="button" class="gtw-close-button" aria-label="Close" @click="closeWidget">
               <svg
+                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
                 height="20"
@@ -120,11 +257,28 @@ onMounted(() => {
           </div>
 
           <div class="gtw-modal-body">
+            <p v-if="status === 'error'" class="gtw-error" role="alert">{{ errorText }}</p>
+
             <!-- Search Bar -->
             <div class="gtw-search-wrapper">
-              <input v-model="searchQuery" type="text" :placeholder="searchPlaceholder" class="gtw-search-input" />
+              <label :for="searchId" class="gtw-visually-hidden">{{ searchPlaceholder }}</label>
+              <input
+                :id="searchId"
+                ref="searchRef"
+                v-model="searchQuery"
+                type="text"
+                role="combobox"
+                autocomplete="off"
+                aria-autocomplete="list"
+                aria-expanded="true"
+                :aria-controls="listId"
+                :aria-activedescendant="activeDescendant"
+                :placeholder="searchPlaceholder"
+                class="gtw-search-input"
+                @keydown="onListKeydown" />
               <svg
                 class="gtw-search-icon"
+                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
@@ -144,28 +298,44 @@ onMounted(() => {
             </div>
 
             <!-- Languages List -->
-            <div v-if="filteredLanguages.length > 0" class="gtw-languages-list">
-              <div
-                v-for="language in filteredLanguages"
-                :key="language.code"
+            <ul
+              v-show="filteredLanguages.length > 0"
+              :id="listId"
+              class="gtw-languages-list"
+              role="listbox"
+              :aria-label="title">
+              <li
+                v-for="(lang, index) in filteredLanguages"
+                :id="optionId(index)"
+                :key="lang.code"
+                role="option"
+                :aria-selected="isCurrent(lang)"
+                :aria-disabled="isChangingLanguage || undefined"
                 :class="[
                   'gtw-language-item',
                   {
-                    'gtw-language-active': currentLanguage === language.code,
+                    'gtw-language-active': isCurrent(lang),
+                    'gtw-language-focused': index === activeIndex,
                     'gtw-language-disabled': isChangingLanguage,
                   },
                 ]"
-                @click="() => handleLanguageChange(language.code)">
+                @mousemove="activeIndex !== index && setActive(index)"
+                @click="selectLanguage(lang.code)">
                 <div class="gtw-language-content">
                   <div v-if="showFlags" class="gtw-flag-wrapper">
                     <img
+                      v-if="lang.flag"
                       class="gtw-flag"
-                      :src="`https://flagcdn.com/${language.flag}.svg`"
-                      :alt="`${language.name} flag`"
+                      :src="flagUrl(lang.flag)"
+                      alt=""
                       loading="lazy"
-                      @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')" />
-                    <div v-if="currentLanguage === language.code && !isChangingLanguage" class="gtw-check-badge">
+                      @error="(e: Event) => ((e.target as HTMLImageElement).style.visibility = 'hidden')" />
+                    <span v-else class="gtw-flag gtw-flag-code notranslate" translate="no" aria-hidden="true">{{
+                      lang.code
+                    }}</span>
+                    <div v-if="isCurrent(lang) && !isChangingLanguage" class="gtw-check-badge">
                       <svg
+                        aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="10"
                         height="10"
@@ -178,17 +348,19 @@ onMounted(() => {
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     </div>
-                    <div v-if="isChangingLanguage && currentLanguage === language.code" class="gtw-loading-badge">
+                    <div v-if="isChangingLanguage && isCurrent(lang)" class="gtw-loading-badge">
                       <div class="gtw-spinner"></div>
                     </div>
                   </div>
                   <div class="gtw-language-info">
-                    <span class="gtw-language-native">{{ language.nativeName }}</span>
-                    <span class="gtw-language-name">{{ language.name }}</span>
+                    <!-- Native names must stay as written, or Google turns "Deutsch" into "Allemand". -->
+                    <span class="gtw-language-native notranslate" translate="no">{{ lang.nativeName }}</span>
+                    <span class="gtw-language-name">{{ lang.name }}</span>
                   </div>
                 </div>
                 <svg
                   class="gtw-chevron"
+                  aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"
@@ -200,12 +372,13 @@ onMounted(() => {
                   stroke-linejoin="round">
                   <path d="m9 18 6-6-6-6" />
                 </svg>
-              </div>
-            </div>
+              </li>
+            </ul>
 
             <!-- No Results -->
-            <div v-else class="gtw-no-results">
+            <div v-if="filteredLanguages.length === 0" class="gtw-no-results">
               <svg
+                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -225,19 +398,30 @@ onMounted(() => {
               <p class="gtw-no-results-text">No languages found</p>
               <p class="gtw-no-results-hint">Try a different search term</p>
             </div>
+
+            <p class="gtw-visually-hidden" aria-live="polite">{{ resultsAnnouncement }}</p>
           </div>
         </div>
       </div>
     </Transition>
-
-    <!-- Hidden Google Translate Element -->
-    <div id="google_translate_element" style="display: none"></div>
   </div>
 </template>
 
 <style scoped>
 .google-translate-widget {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.gtw-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .gtw-float-button {
@@ -268,6 +452,12 @@ onMounted(() => {
 
 .gtw-float-button:active {
   transform: scale(0.95);
+}
+
+.gtw-float-button:focus-visible,
+.gtw-close-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .gtw-modal-overlay {
@@ -311,7 +501,7 @@ onMounted(() => {
 
 .gtw-modal-subtitle {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #4b5563;
   margin: 0;
 }
 
@@ -321,7 +511,7 @@ onMounted(() => {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  color: #6b7280;
+  color: #4b5563;
   transition: all 0.2s;
 }
 
@@ -336,12 +526,22 @@ onMounted(() => {
   flex: 1;
 }
 
+.gtw-error {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.875rem;
+}
+
 .gtw-search-wrapper {
   position: relative;
   margin-bottom: 1rem;
 }
 
 .gtw-search-input {
+  box-sizing: border-box;
   width: 100%;
   padding: 0.625rem 0.75rem 0.625rem 2.5rem;
   border: 1px solid #e5e7eb;
@@ -353,7 +553,7 @@ onMounted(() => {
 
 .gtw-search-input:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 .gtw-search-icon {
@@ -368,6 +568,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .gtw-language-item {
@@ -381,9 +584,15 @@ onMounted(() => {
   transition: all 0.2s;
 }
 
-.gtw-language-item:hover:not(.gtw-language-disabled) {
+.gtw-language-item:hover:not(.gtw-language-disabled),
+.gtw-language-focused:not(.gtw-language-disabled) {
   background: #f9fafb;
   border-color: #d1d5db;
+}
+
+.gtw-language-focused {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
 }
 
 .gtw-language-active {
@@ -412,10 +621,22 @@ onMounted(() => {
 }
 
 .gtw-flag {
+  display: block;
   width: 2.5rem;
   height: 1.75rem;
   border-radius: 0.375rem;
   object-fit: cover;
+}
+
+.gtw-flag-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .gtw-check-badge,
@@ -468,12 +689,12 @@ onMounted(() => {
 }
 
 .gtw-language-active .gtw-language-native {
-  color: #3b82f6;
+  color: #2563eb;
 }
 
 .gtw-language-name {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #4b5563;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -486,7 +707,8 @@ onMounted(() => {
   opacity: 0;
 }
 
-.gtw-language-item:hover .gtw-chevron {
+.gtw-language-item:hover .gtw-chevron,
+.gtw-language-focused .gtw-chevron {
   opacity: 0.5;
 }
 
@@ -507,13 +729,13 @@ onMounted(() => {
 
 .gtw-no-results-text {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #4b5563;
   margin: 0 0 0.25rem 0;
 }
 
 .gtw-no-results-hint {
   font-size: 0.75rem;
-  color: rgba(107, 114, 128, 0.7);
+  color: #6b7280;
   margin: 0;
 }
 
@@ -539,6 +761,21 @@ onMounted(() => {
 .gtw-modal-leave-to .gtw-modal {
   transform: scale(0.95);
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gtw-float-button,
+  .gtw-language-item,
+  .gtw-modal-enter-active,
+  .gtw-modal-leave-active,
+  .gtw-modal-enter-active .gtw-modal,
+  .gtw-modal-leave-active .gtw-modal {
+    transition: none;
+  }
+
+  .gtw-float-button:hover {
+    transform: none;
+  }
 }
 
 /* Responsive */

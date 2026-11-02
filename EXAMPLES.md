@@ -55,68 +55,14 @@ import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
 /* Custom button color */
 .gtw-float-button {
 
-### Hiding Google Translate Branding
+### Google's Branding
+
+Google's banner, tooltips and highlight are hidden automatically. To keep them:
 
 ```vue
-<script setup lang="ts">
-import { GoogleTranslateWidget } from '@ken_de_nigerian/vue-google-translate-widget'
-import '@ken_de_nigerian/vue-google-translate-widget/dist/style.css'
-</script>
-
 <template>
-  <GoogleTranslateWidget />
+  <GoogleTranslateWidget :hide-branding="false" />
 </template>
-
-<!-- Add these global styles to hide Google branding -->
-<style>
-/* Hide Google Translate Branding */
-.goog-logo-link {
-  display: none !important;
-}
-
-.goog-te-gadget {
-  color: transparent !important;
-}
-
-.goog-te-banner-frame {
-  display: none !important;
-}
-
-.VIpgJd-ZVi9od-l4eHX-hSRGPd {
-  display: none !important;
-}
-
-.goog-te-gadget img {
-  display: none !important;
-}
-
-body > .skiptranslate,
-iframe.skiptranslate {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
-}
-</style>
-```
-
-**Note:** Google periodically updates their widget which may change these class names. If branding reappears, inspect the elements in DevTools and update the selectors accordingly.
-
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-/* Custom modal border radius */
-.gtw-modal {
-  border-radius: 2rem !important;
-}
-
-/* Custom active language color */
-.gtw-language-active {
-  background: rgba(102, 126, 234, 0.1) !important;
-  border-color: rgba(102, 126, 234, 0.5) !important;
-}
-</style>
 ```
 
 ### Using the Composable Directly
@@ -137,15 +83,16 @@ const {
   includedLanguages: ['en', 'es', 'fr', 'de']
 })
 
-const selectedLang = ref('en')
+const selectedLang = ref(currentLanguage.value)
 
-onMounted(() => {
-  initializeTranslate()
-  selectedLang.value = currentLanguage.value
-})
+onMounted(initializeTranslate)
 
-const handleChange = () => {
-  changeLanguage(selectedLang.value)
+const handleChange = async () => {
+  try {
+    await changeLanguage(selectedLang.value)
+  } catch {
+    selectedLang.value = currentLanguage.value // Google couldn't apply it
+  }
 }
 </script>
 
@@ -157,8 +104,6 @@ const handleChange = () => {
       </option>
     </select>
     <p v-if="isChangingLanguage">Changing language...</p>
-    <!-- Hidden Google Translate Element -->
-    <div id="google_translate_element" style="display: none"></div>
   </div>
 </template>
 ```
@@ -182,7 +127,7 @@ const handleLanguageChange = (lang: string) => {
     <GoogleTranslateButton 
       button-text="🌍 Language"
       :included-languages="['en', 'es', 'fr', 'de', 'it']"
-      @language-changed="handleLanguageChange"
+      @change="handleLanguageChange"
     />
   </nav>
 </template>
@@ -382,10 +327,12 @@ onMounted(() => {
   initializeTranslate()
 })
 </script>
+```
 
-<template>
-  <div id="google_translate_element" style="display: none"></div>
-</template>
+With a component you can use its `change` event instead:
+
+```vue
+<GoogleTranslateWidget @change="lang => gtag('event', 'language_change', { new_language: lang })" />
 ```
 
 ### Full Featured Example
