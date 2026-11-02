@@ -122,7 +122,7 @@
     "prettier": "^3.9.10",
     "publint": "^0.3.25",
     "size-limit": "^14.3.0",
-    "typescript": "^5.5.0",
+    "typescript": "^7.0.2",
     "vite": "^5.4.0",
     "vite-plugin-dts": "^4.0.0",
     "vitepress": "^1.6.4",
