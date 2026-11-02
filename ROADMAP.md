@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: Phase 0 implemented (not yet released). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: Phase 0 released as 1.0.2. Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -17,7 +17,7 @@ Alongside these, the documentation is rebuilt to the same standard as PayZephyr 
 
 ---
 
-## Phase 0: Foundations (`1.0.2`) ✅ done, unreleased
+## Phase 0: Foundations (`1.0.2`) ✅ released
 
 Nothing user-visible changes here. This phase exists so every later fix lands with a test and a green CI badge.
 

@@ -7,7 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Unreleased
 
-Planned as **1.0.2**: no behaviour changes, only packaging, tooling and documentation.
+## 1.0.2 - 2026-11-02
+
+No behaviour changes: packaging, tooling and documentation only.
 
 ### Fixed
 
