@@ -129,7 +129,7 @@
     "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "^3.2.7",
     "vue": "^3.4.0",
-    "vue-tsc": "^2.1.0"
+    "vue-tsc": "^3.3.14"
   },
   "size-limit": [
     {
