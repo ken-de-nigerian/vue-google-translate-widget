@@ -1,6 +1,6 @@
 {
   "name": "@ken_de_nigerian/vue-google-translate-widget",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Accessible Vue 3 and Nuxt language switcher: translate your site into 100+ languages in place, with Google's free widget or DeepL, Google Cloud, Azure and LibreTranslate.",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Unreleased
 
+## 2.1.0 - 2026-11-05
+
+Production hardening. No breaking changes; see the [Upgrade Guide](https://ken-de-nigerian.github.io/vue-google-translate-widget/upgrade-guide).
+
 ### Added
 
 - **`/testing` entry point** with `installFakeGoogleTranslate()` and `resetGoogleTranslate()`, so apps can test
