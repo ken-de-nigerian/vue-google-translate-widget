@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: all phases complete and verified (1.0.2, 1.1.0, 1.2.0 and 2.0.0 tagged; npm publish waiting on the `NPM_TOKEN` secret). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: all phases complete and verified; 1.0.2, 1.1.0, 1.2.0 and 2.0.0 published to npm with provenance (2026-11-05). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -17,7 +17,7 @@ Alongside these, the documentation is rebuilt to the same standard as PayZephyr 
 
 ---
 
-## Phase 0: Foundations (`1.0.2`) ✅ done, npm publish pending
+## Phase 0: Foundations (`1.0.2`) ✅ done
 
 Nothing user-visible changes here. This phase exists so every later fix lands with a test and a green CI badge.
 
@@ -66,7 +66,7 @@ underscores). The repo actually lives at `github.com/ken-de-nigerian/vue-google-
 
 Also: Dependabot (npm + actions), issue templates (bug / feature), PR template, `CODEOWNERS`. ✅
 
-**Before the first tagged release:** add an `NPM_TOKEN` secret to the repo (or configure npm trusted publishing).
+The `NPM_TOKEN` secret is a granular token with "bypass 2FA" (the account requires 2FA to publish).
 
 ### 0.5 Make the docs honest
 
