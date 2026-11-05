@@ -10,7 +10,7 @@ export default defineNuxtPlugin(nuxtApp => {
   // Render the visitor's language on the server, so hydration matches: ?lang= first (if enabled), then the
   // googtrans cookie ("/en/fr" → "fr").
   const query = config.queryParameter ? useRoute().query[config.queryParameter] : undefined
-  const saved = useCookie<string | null>('googtrans', { decode: value => value }).value
+  const saved = useCookie('googtrans', { decode: (value: string) => value }).value
   const initialLanguage = (typeof query === 'string' && query) || saved?.split('/')[2] || undefined
   nuxtApp.vueApp.use(createGoogleTranslate({ ...config, initialLanguage }))
   // Auto-imports don't reach template directives, so register v-no-translate globally.

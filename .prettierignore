@@ -5,6 +5,6 @@ package-lock.json
 *.md
 .nuxt
 .output
-playground-nuxt/node_modules
+tests/fixtures/nuxt-app/node_modules
 docs/.vitepress/cache
 docs/.vitepress/dist

@@ -14,8 +14,8 @@ dist-ssr
 .DS_Store
 *.sw?
 coverage
-playground-nuxt/.nuxt
-playground-nuxt/.output
-playground-nuxt/node_modules
+tests/fixtures/nuxt-app/.nuxt
+tests/fixtures/nuxt-app/.output
+tests/fixtures/nuxt-app/node_modules
 docs/.vitepress/cache
 docs/.vitepress/dist

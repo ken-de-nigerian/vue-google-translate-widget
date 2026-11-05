@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     dts({
-      rollupTypes: true,
+      bundleTypes: true,
       tsconfigPath: './tsconfig.json',
       include: ['src'],
       exclude: ['src/nuxt'],
@@ -21,6 +21,8 @@ export default defineConfig({
         server: resolve(__dirname, 'src/server/index.ts'),
       },
       formats: ['es', 'cjs'],
+      // Vite 6+ names the stylesheet after the package; the published path is style.css.
+      cssFileName: 'style',
       fileName: (format, name) => `${name}.${format === 'es' ? 'js' : 'cjs'}`,
     },
     rollupOptions: {
