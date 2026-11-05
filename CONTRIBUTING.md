@@ -29,7 +29,7 @@ npm install
 | `npm run build` | Build `dist/` |
 | `npm run check:publish` | publint + Are the Types Wrong? against the built package |
 | `npm run size` | Bundle size against the budget in `package.json` |
-| `npm run test:nuxt` | Build `playground-nuxt/` (a real Nuxt app using the module) and check its server-rendered HTML. Run `npm run build` first. |
+| `npm run test:nuxt` | Build `tests/fixtures/nuxt-app/` (a real Nuxt app using the module) and check its server-rendered HTML. Run `npm run build` first. |
 | `npm run docs:dev` | The documentation site at `http://localhost:5173/vue-google-translate-widget/` (`docs:build` to build it; CI fails on dead links) |
 | `npm run sync:languages` | Compare Google's live language list with `tests/fixtures/google-languages.json` (`-- --write` to update). Needs `npx playwright-core install chromium` once. |
 

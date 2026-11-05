@@ -1,19 +1,21 @@
-// Builds playground-nuxt (a real Nuxt app that installs this package through
+// Builds tests/fixtures/nuxt-app (a real Nuxt app that installs this package through
 // node_modules, like a user would) and checks its server-rendered HTML.
 // Run `npm run build` first.
 import { spawn, execSync } from 'node:child_process'
 import { mkdirSync, rmSync, symlinkSync } from 'node:fs'
 import assert from 'node:assert/strict'
 
-const link = 'playground-nuxt/node_modules/@ken_de_nigerian/vue-google-translate-widget'
-mkdirSync('playground-nuxt/node_modules/@ken_de_nigerian', { recursive: true })
+const app = 'tests/fixtures/nuxt-app'
+const link = `${app}/node_modules/@ken_de_nigerian/vue-google-translate-widget`
+mkdirSync(`${app}/node_modules/@ken_de_nigerian`, { recursive: true })
 rmSync(link, { force: true })
-symlinkSync('../../..', link)
+// Relative to the link's folder: up through @ken_de_nigerian, node_modules, nuxt-app, fixtures, tests.
+symlinkSync('../../../../..', link)
 
-execSync('npx nuxi build playground-nuxt', { stdio: 'inherit' })
+execSync(`npx nuxi build ${app}`, { stdio: 'inherit' })
 
 const port = 3990
-const server = spawn('node', ['playground-nuxt/.output/server/index.mjs'], {
+const server = spawn('node', [`${app}/.output/server/index.mjs`], {
   env: { ...process.env, PORT: String(port) },
   stdio: 'inherit',
 })
@@ -45,7 +47,10 @@ try {
   )
   assert.match(plain, /gtw-float-button/, 'renders GoogleTranslateWidget (auto-imported)')
   assert.match(plain, /<span class="label">English<\/span>/, 'renders GoogleTranslateButton (auto-imported)')
-  assert.match(plain, /--_gtw-primary/, 'includes the stylesheet')
+  // Nuxt 3 inlines the stylesheet; Nuxt 4 links it. Either way our CSS must reach the page.
+  const linked = [...plain.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(match => match[1])
+  const styles = [plain, ...(await Promise.all(linked.map(href => get(href))))].join('\n')
+  assert.match(styles, /--_gtw-primary/, 'includes the stylesheet')
 
   assert.equal(current(await get('/', 'googtrans=/en/fr')), 'fr', 'renders the language from the cookie')
   assert.equal(current(await get('/?lang=de', 'googtrans=/en/fr')), 'de', '?lang= wins over the cookie')
