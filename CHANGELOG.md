@@ -7,6 +7,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Unreleased
 
+### Added
+
+- **`/testing` entry point** with `installFakeGoogleTranslate()` and `resetGoogleTranslate()`, so apps can test
+  components that contain a switcher without loading Google's script. The package's own tests use the same fake.
+- The Nuxt module is now tested on **Nuxt 4** as well as Nuxt 3, in CI.
+- Documentation rewritten as a guide, with a running example, new **Testing Your App** and **Accessibility**
+  chapters, and decision records for the main design choices.
+
+### Fixed
+
+- **WCAG contrast:** the default blue (`#3b82f6`) gave white text a contrast of 3.68:1, below the 4.5:1 WCAG AA
+  requires (the "Translate" button in the browser-language prompt), and the dark theme's hover colour gave 2.54:1. The
+  defaults are now `#2563eb` / `#1d4ed8` (5.17:1 / 6.7:1), and a test checks every default text and background pair
+  in all three themes.
+- **Nuxt module types:** `ModuleOptions` (the `googleTranslate` key in `nuxt.config`) resolved to `any` in 2.0.0,
+  because the published declarations imported a file that isn't in the package. It's now fully typed.
+- The published declarations no longer reference an internal constant (`CALLBACK_NAME`), which broke type-checking
+  for projects with `skipLibCheck: false`.
+- The Nuxt module's `useCookie` call type-checks on Nuxt 4.
+
+### Changed
+
+- Development toolchain: Vite 7, Vitest 5, @vitejs/plugin-vue 6, vue-tsc 3, vite-plugin-dts 5, TypeScript 6, current
+  GitHub Actions. The published files are unchanged in layout.
+- `engines.node` is set to `>=18` (needed by `/server`).
+
+### Internal
+
+- CI packs the tarball, installs it into an empty project and checks every entry point as ESM, CommonJS and with
+  strict types, before every release.
+- `playground-nuxt/` moved to `tests/fixtures/nuxt-app/`; removed a leftover probe page from `playground/`.
+- Mutation testing with Stryker, weekly in CI (92.6% of mutants caught; fails below 90%). The tests it prompted cover
+  the server's input validation boundaries, the subdomain-cookie fix and the vendor language-code mappings.
+- 386 tests (from 235).
+
 ## 2.0.0 - 2026-11-02
 
 The platform release: translation providers, an app-wide plugin, a Nuxt module, server handlers, and a

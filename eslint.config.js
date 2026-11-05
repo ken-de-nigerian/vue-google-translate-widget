@@ -6,6 +6,8 @@ export default defineConfigWithVueTs(
   {
     name: 'app/files-to-ignore',
     ignores: [
+      'reports/**',
+      '.stryker-tmp/**',
       'dist/**',
       'coverage/**',
       'node_modules/**',

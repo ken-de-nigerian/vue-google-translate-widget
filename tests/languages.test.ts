@@ -52,3 +52,11 @@ describe('toGoogleCode', () => {
     for (const code of Object.values(LANGUAGE_CODE_ALIASES)) expect(googleCodes.has(code)).toBe(true)
   })
 })
+
+describe('DEFAULT_LANGUAGES data', () => {
+  // Any change to a name, native name, code or flag shows up as a snapshot diff to review, rather than slipping
+  // through. Update with `npx vitest run -u` when the change is intended.
+  it('matches the reviewed list', () => {
+    expect(DEFAULT_LANGUAGES).toMatchSnapshot()
+  })
+})

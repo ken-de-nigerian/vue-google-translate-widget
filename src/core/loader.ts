@@ -2,7 +2,7 @@ export const DEFAULT_SCRIPT_SRC = 'https://translate.google.com/translate_a/elem
 export const DEFAULT_TIMEOUT = 10_000
 export const HOST_ELEMENT_ID = 'gtw-google-translate-host'
 const SCRIPT_ID = 'gtw-google-translate-script'
-const CALLBACK_NAME = '__gtwGoogleTranslateInit'
+const CALLBACK_NAME = '__gtwGoogleTranslateInit' as const
 
 export interface LoaderOptions {
   pageLanguage: string
@@ -22,7 +22,8 @@ declare global {
     // libraries that also declare `window.google` (e.g. @types/google.maps).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     google: any
-    [CALLBACK_NAME]?: () => void
+    // Written out (not [CALLBACK_NAME]) so published declarations don't reference an internal constant.
+    __gtwGoogleTranslateInit?: () => void
   }
 }
 

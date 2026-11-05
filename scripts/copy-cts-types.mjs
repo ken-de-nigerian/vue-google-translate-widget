@@ -3,6 +3,6 @@
 // files, otherwise TypeScript reports the types as masquerading as ESM.
 import { copyFileSync } from 'node:fs'
 
-for (const entry of ['index', 'server']) {
+for (const entry of ['index', 'server', 'testing']) {
   copyFileSync(`dist/${entry}.d.ts`, `dist/${entry}.d.cts`)
 }

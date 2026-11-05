@@ -113,58 +113,62 @@ More in the [Quick Start](docs/quick-start.md).
 | 🧠 **Smart extras** | Pinned and recent languages, browser-language prompt or auto-translate, emoji flags, lazy loading, `v-no-translate` |
 | 📈 **Analytics hook** | `onTranslate` for GA4, Plausible, PostHog |
 | 📦 **Small** | ~11 kB for the Widget, ~6.6 kB headless (brotli); no runtime dependencies |
-| 🧪 **Tested** | 235 tests, Vue 3.3–3.5, a real Nuxt build in CI, and a weekly check against Google's live widget |
+| 🧪 **Testable** | A fake of Google's widget for your own tests, from `/testing` |
+| ✅ **Tested** | 386 tests on Vue 3.3–3.5 with a 92.6% mutation score, real Nuxt 3 and 4 builds, the published tarball checked as ESM, CommonJS and types, WCAG contrast, and a weekly check against Google's live widget |
 
 ## Documentation
 
 **Getting started**
 
 1. [Installation](docs/installation.md)
-2. [Quick Start](docs/quick-start.md)
-3. [Nuxt](docs/nuxt.md): the module, server rendering, `?lang=` links
-4. [How It Works](docs/how-it-works.md): what happens when a visitor picks a language, and the limits
+2. [Your First Language Switcher](docs/quick-start.md): a working switcher on a real page, step by step
+3. [How Translation Works](docs/how-it-works.md): what happens when a visitor picks a language, and the limits
+4. [Nuxt](docs/nuxt.md): the module, server rendering, shareable `?lang=` links
 
-**Components and API**
+**Using the package**
 
-5. [GoogleTranslateWidget](docs/widget.md)
-6. [GoogleTranslateButton](docs/button.md)
-7. [useGoogleTranslate](docs/composable.md)
-8. [Plugin](docs/plugin.md): configure once; auto-translate
-9. [v-no-translate](docs/directive.md)
+5. [GoogleTranslateWidget](docs/widget.md): the floating switcher
+6. [GoogleTranslateButton](docs/button.md): the navbar dropdown
+7. [Building Your Own Switcher](docs/composable.md): `useGoogleTranslate`
+8. [Configuration](docs/plugin.md): set options once for the whole app; automatic translation
+9. [Keeping Text Untranslated](docs/directive.md): `v-no-translate`
 
 **Customising**
 
-10. [Theming](docs/theming.md)
-11. [Languages & Flags](docs/languages.md)
-12. [Right-to-Left](docs/rtl.md)
+10. [Theming](docs/theming.md): dark mode, CSS custom properties, unstyled
+11. [Languages & Flags](docs/languages.md): codes, ordering, flag styles
+12. [Right-to-Left Languages](docs/rtl.md)
 
 **Behaviour**
 
-13. [Live vs Reload](docs/live-vs-reload.md)
+13. [Live and Reload Modes](docs/live-vs-reload.md)
 14. [Events & Analytics](docs/events-and-analytics.md)
 
 **Going further**
 
 15. [Translation Providers](docs/providers.md): DeepL, Google Cloud, Azure, LibreTranslate, your own
-16. [Server Handlers](docs/server-handlers.md): Nuxt, Next.js, Hono, Express, Laravel
+16. [Server Handlers](docs/server-handlers.md): keep API keys on your server
+17. [Testing Your App](docs/testing.md): a fake of Google's widget for your tests
 
 **Shipping it**
 
-17. [Performance](docs/performance.md)
-18. [CSP & Privacy](docs/csp-and-privacy.md)
-19. [Production Checklist](docs/production-checklist.md)
+18. [Performance](docs/performance.md)
+19. [Accessibility](docs/accessibility.md)
+20. [Security, CSP & Privacy](docs/csp-and-privacy.md)
+21. [Production Checklist](docs/production-checklist.md)
 
 **When things go wrong**
 
-20. [Troubleshooting](docs/troubleshooting.md)
-21. [FAQ](docs/faq.md)
+22. [Troubleshooting](docs/troubleshooting.md)
+23. [FAQ](docs/faq.md)
 
 **Reference**
 
-22. [API Reference](docs/api-reference.md)
-23. [Architecture](docs/architecture.md)
-24. [Upgrade Guide](docs/upgrade-guide.md): 1.x → 2.0
-25. [Contributing](CONTRIBUTING.md)
+24. [API Reference](docs/api-reference.md)
+25. [Architecture](docs/architecture.md): how it's built, the decisions behind it, how it's tested
+26. [Upgrade Guide](docs/upgrade-guide.md)
+27. [Changelog](CHANGELOG.md)
+28. [Contributing](CONTRIBUTING.md)
 
 The same chapters, with search and a live demo, are on the
 **[documentation website](https://ken-de-nigerian.github.io/vue-google-translate-widget/)**.

@@ -6,7 +6,14 @@ import { resolve } from 'path'
 // Built after the main bundle (see the "build" script), into the same dist/.
 export default defineConfig({
   plugins: [
-    dts({ tsconfigPath: './tsconfig.json', include: ['src/nuxt'], entryRoot: 'src/nuxt', outDirs: 'dist/nuxt-types' }),
+    dts({
+      tsconfigPath: './tsconfig.json',
+      include: ['src/nuxt'],
+      entryRoot: 'src/nuxt',
+      outDirs: 'dist/nuxt-types',
+      // Keep `import ... from '@ken_de_nigerian/vue-google-translate-widget'`: rewriting it to a path breaks the types.
+      pathsToAliases: false,
+    }),
   ],
   build: {
     emptyOutDir: false,

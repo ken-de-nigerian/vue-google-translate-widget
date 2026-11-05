@@ -1,21 +1,42 @@
-# Live vs Reload
+# Live and Reload Modes
 
-**Who this is for:** anyone whose app reacts badly to the DOM being changed underneath it, or who's upgrading from
-1.0. **At the end** you'll know when to use `mode: 'reload'`.
+By default, translation happens **live**: the visitor picks a language and the text on the page changes in place.
+There's no reload, so nothing the visitor was doing is lost: a half-filled form, a playing video, a scroll position,
+an open accordion. That's the right behaviour for almost every site.
 
-| `mode` | What happens |
+The alternative is **reload** mode, which is how 1.0 always behaved: the choice is saved, and the page reloads,
+already translated.
+
+```ts
+createGoogleTranslate({ mode: 'reload' })
+```
+
+| `mode` | When the visitor picks a language |
 | --- | --- |
-| `'live'` (default) | The page is translated in place. No reload, no lost state. |
-| `'reload'` | The choice is saved, and the page reloads already translated: the 1.0 behaviour. |
+| `'live'` (default) | The page's text is translated in place |
+| `'reload'` | The choice is saved and the page reloads, translated from the first paint |
 
-Live mode is right for almost every site. Machine translation rewrites text nodes, and Vue copes with that well.
-When Vue re-renders a translated element, the provider engine translates the new text, and Google's widget does
-the same for most changes.
+## When reload mode makes sense
 
-Consider `'reload'` if:
+Translation rewrites the text in your page's DOM. Vue handles that well: when it re-renders an element, the new
+text is translated in turn. Some code is less forgiving, though, and reload mode is the escape hatch for it:
 
-- a third-party widget on your page breaks when its text changes, or
-- you prefer every page view to start from a clean, already-translated render.
+- A third-party widget (a chat bubble, a map, a booking embed) that breaks when the text inside it changes.
+- An app that reads text back out of the DOM and does something with it, and gets confused when it's in another
+  language.
+- A preference for every page view starting from a clean, already-translated render.
 
-Restoring the original language is also done in place (via Google's "Show original" button, or the provider
-engine's stored originals). Set `reloadOnRestore: true` to reload instead.
+Before reaching for reload mode, try marking the troublesome element with [`v-no-translate`](directive.md): if the
+widget doesn't need translating, that's usually enough.
+
+## Restoring the original
+
+Going back to the page's own language is also done in place in live mode. With Google's widget, the package clicks
+Google's "Show original" button; with a [provider](providers.md), the DOM engine puts back the original text it kept.
+If Google's button can't be found, the page reloads instead.
+
+To always reload when restoring, even in live mode:
+
+```ts
+createGoogleTranslate({ reloadOnRestore: true })
+```

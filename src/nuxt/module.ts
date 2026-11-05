@@ -1,5 +1,6 @@
 import { addComponent, addImports, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
-import type { GoogleTranslateConfig } from '../composables/useGoogleTranslate'
+// Imported by package name, not path: the published nuxt types sit apart from the main declarations.
+import type { GoogleTranslateConfig } from '@ken_de_nigerian/vue-google-translate-widget'
 
 const PACKAGE = '@ken_de_nigerian/vue-google-translate-widget'
 
