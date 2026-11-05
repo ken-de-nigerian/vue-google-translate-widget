@@ -1,7 +1,7 @@
 {
   "name": "@ken_de_nigerian/vue-google-translate-widget",
   "version": "2.0.0",
-  "description": "A Vue 3 composable and component library for Google Translate integration",
+  "description": "Accessible Vue 3 and Nuxt language switcher: translate your site into 100+ languages in place, with Google's free widget or DeepL, Google Cloud, Azure and LibreTranslate.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -25,6 +25,16 @@
       "require": {
         "types": "./dist/server.d.cts",
         "default": "./dist/server.cjs"
+      }
+    },
+    "./testing": {
+      "import": {
+        "types": "./dist/testing.d.ts",
+        "default": "./dist/testing.js"
+      },
+      "require": {
+        "types": "./dist/testing.d.cts",
+        "default": "./dist/testing.cjs"
       }
     },
     "./nuxt": {
@@ -57,15 +67,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints . ./server",
+    "check:publish": "publint --strict && attw --pack . --profile node16 --entrypoints . ./server ./testing",
     "size": "size-limit",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:publish && npm run test:package",
     "sync:languages": "node scripts/sync-languages.mjs",
     "nuxt:dev": "nuxi dev tests/fixtures/nuxt-app",
     "test:nuxt": "node scripts/nuxt-ssr-check.mjs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "test:package": "node scripts/package-smoke-test.mjs",
+    "test:mutation": "stryker run"
   },
   "keywords": [
     "vue",
@@ -81,7 +93,14 @@
     "translation",
     "rtl",
     "composable",
-    "typescript"
+    "typescript",
+    "deepl",
+    "libretranslate",
+    "machine-translation",
+    "accessibility",
+    "a11y",
+    "nuxt-module",
+    "ssr"
   ],
   "author": {
     "name": "Nwaneri Chukwunyere Kenneth",
@@ -89,6 +108,9 @@
     "url": "https://github.com/ken-de-nigerian"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ken-de-nigerian/vue-google-translate-widget.git"
@@ -108,6 +130,8 @@
     "@nuxt/schema": "^4.6.4",
     "@size-limit/esbuild": "^14.3.0",
     "@size-limit/file": "^14.3.0",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/coverage-v8": "^5.1.0",
     "@vue/eslint-config-prettier": "^10.2.0",

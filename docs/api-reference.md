@@ -1,18 +1,24 @@
 # API Reference
 
-Every export, as of 2.0. Guides: [Widget](./widget.md), [Button](./button.md), [Composable](./composable.md),
-[Plugin](./plugin.md), [Providers](./providers.md), [Server Handlers](./server-handlers.md), [Nuxt](./nuxt.md).
+Every export, for reference. The chapters explain when and why to use each one: [GoogleTranslateWidget](widget.md),
+[GoogleTranslateButton](button.md), [Building Your Own Switcher](composable.md), [Configuration](plugin.md),
+[Translation Providers](providers.md), [Server Handlers](server-handlers.md), [Testing Your App](testing.md) and
+[Nuxt](nuxt.md).
+
+Everything listed here is public API and follows semantic versioning: it only changes incompatibly in a major
+release, with a migration path in the [Upgrade Guide](upgrade-guide.md). That includes the CSS class names and the
+`--gtw-*` custom properties.
 
 ## `@ken_de_nigerian/vue-google-translate-widget`
 
 | Export | Kind | |
 | --- | --- | --- |
-| `GoogleTranslateWidget` | component | [Widget](./widget.md) |
-| `GoogleTranslateButton` | component | [Button](./button.md) |
-| `useGoogleTranslate(options?)` | composable | [Composable](./composable.md) |
-| `createGoogleTranslate(config?)` | Vue plugin | [Plugin](./plugin.md) |
+| `GoogleTranslateWidget` | component | [Widget](widget.md) |
+| `GoogleTranslateButton` | component | [Button](button.md) |
+| `useGoogleTranslate(options?)` | composable | [Composable](composable.md) |
+| `createGoogleTranslate(config?)` | Vue plugin | [Plugin](plugin.md) |
 | `GOOGLE_TRANSLATE_CONFIG` | `InjectionKey` | What the plugin provides, for advanced setups |
-| `vNoTranslate` | directive | [v-no-translate](./directive.md) |
+| `vNoTranslate` | directive | [v-no-translate](directive.md) |
 | `endpointProvider({ url, headers?, credentials? })` | provider | Calls your server |
 | `libreTranslate({ url, apiKey? })` | provider | Calls a LibreTranslate server |
 | `toLibreTranslateCode(code)` | function | Google code → LibreTranslate code |
@@ -74,10 +80,19 @@ interface WidgetLabels {
 
 Type: `TranslationBackend { name; translate(texts, source, target): Promise<string[]> }`.
 
+## `@ken_de_nigerian/vue-google-translate-widget/testing`
+
+| Export | |
+| --- | --- |
+| `installFakeGoogleTranslate({ languages? })` | Replaces Google's widget with an in-memory fake. Returns `{ constructed, restoreClicks, uninstall() }`. |
+| `resetGoogleTranslate()` | Resets the package's per-page state between tests |
+
+Types: `FakeGoogleTranslate`, `FakeGoogleTranslateOptions`. See [Testing Your App](testing.md).
+
 ## `@ken_de_nigerian/vue-google-translate-widget/nuxt`
 
 The Nuxt module. Config key `googleTranslate`: every serializable `GoogleTranslateConfig` option, plus `css` and
-`plugin`. See [Nuxt](./nuxt.md).
+`plugin`. Its options type is exported as `ModuleOptions`. See [Nuxt](nuxt.md).
 
 ## `@ken_de_nigerian/vue-google-translate-widget/style.css`
 

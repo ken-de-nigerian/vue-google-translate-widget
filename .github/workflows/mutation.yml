@@ -1,0 +1,38 @@
+name: Mutation testing
+
+# Stryker changes the source in small ways and checks that a test fails each time. Too slow for every push
+# (about 15 minutes), so it runs weekly and on demand. The run fails if the score drops below the `break`
+# threshold in stryker.config.mjs; the HTML report is uploaded as an artifact.
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stryker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stryker
+        run: npm run test:mutation
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          retention-days: 30

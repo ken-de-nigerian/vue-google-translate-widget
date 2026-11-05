@@ -19,3 +19,6 @@ tests/fixtures/nuxt-app/.output
 tests/fixtures/nuxt-app/node_modules
 docs/.vitepress/cache
 docs/.vitepress/dist
+reports/
+.stryker-tmp/
+launch-posts.md

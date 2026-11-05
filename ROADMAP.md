@@ -1,6 +1,6 @@
 # Vue Google Translate Widget: Fix, Polish & v2 Roadmap
 
-Status: all phases complete and verified; 1.0.2, 1.1.0, 1.2.0 and 2.0.0 published to npm with provenance (2026-11-05). Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
+Status: Phases 0–4 complete and verified; every release published to npm with provenance. Plan written 2026-11-02 against `v1.0.1` (commit `f44c68f`).
 
 The goal is to take the package from "works on my site" to something people can trust and recommend over the
 alternatives (`@google-translate-select/vue3` ~3.2k downloads/month, `vue-gtranslate` ~850/month; we are at 26). We
@@ -446,6 +446,28 @@ website link, a pinned "Roadmap" discussion, and labels (`good first issue`, `pr
 - [ ] Show the comparison table on the docs home
 
 ---
+
+## Phase 4: Production hardening (`2.1.0`)
+
+**Status (2026-11-05):** done; see the 2.1.0 changelog. Prompted by a review against PayZephyr's standard.
+
+- ✅ **Dependabot backlog:** all ten PRs resolved in one toolchain upgrade (#14): Vite 7, Vitest 5, plugin-vue 6,
+  vue-tsc 3, vite-plugin-dts 5, TypeScript 6, current GitHub Actions. TypeScript 7 deferred (ADR 0008).
+- ✅ **Nuxt 4:** the module is built and SSR-checked on Nuxt 3 and 4 in CI; `useCookie` typing fixed for Nuxt 4.
+- ✅ **Docs rewritten** as a guide with a running example; new Testing Your App and Accessibility chapters; eight
+  decision records; a test that every in-docs anchor link resolves.
+- ✅ **`/testing` entry point** with a fake of Google's widget for users' own tests (and ours).
+- ✅ **Package smoke test:** CI installs the packed tarball into an empty project and checks every entry point as ESM,
+  CommonJS and strict types. It found two published-declaration bugs in 2.0.0 (Nuxt `ModuleOptions` was `any`;
+  `CALLBACK_NAME` leaked), both fixed.
+- ✅ **WCAG contrast:** the default blue failed AA for text (3.68:1); fixed, and tested for every pair in all themes.
+- ✅ **Mutation testing** with Stryker, weekly in CI. The first run scored 78.6%; the surviving mutants pointed at real
+  gaps (the server's language-code check wasn't anchored by any test; the subdomain-cookie fix could regress
+  unnoticed), and the tests written for them raised it to 92.6%. The weekly job fails below 90%.
+- ✅ Repo tidy: the Nuxt fixture moved to `tests/fixtures/`, a leftover probe page removed, `CONTRIBUTING.md` explains
+  what every folder is for.
+- ☐ Launch posts: drafted (in the git-ignored `launch-posts.md`); posting them is the maintainer's call.
+- ☐ React/Svelte wrappers: still open; see the FAQ and ADR 0005.
 
 ## Definition of done (per release)
 

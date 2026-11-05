@@ -19,6 +19,7 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         server: resolve(__dirname, 'src/server/index.ts'),
+        testing: resolve(__dirname, 'src/testing/index.ts'),
       },
       formats: ['es', 'cjs'],
       // Vite 6+ names the stylesheet after the package; the published path is style.css.

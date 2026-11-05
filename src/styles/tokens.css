@@ -5,8 +5,8 @@
  */
 .google-translate-widget,
 .gtb-container {
-  --_gtw-primary: var(--gtw-color-primary, #3b82f6);
-  --_gtw-primary-hover: var(--gtw-color-primary-hover, #2563eb);
+  --_gtw-primary: var(--gtw-color-primary, #2563eb);
+  --_gtw-primary-hover: var(--gtw-color-primary-hover, #1d4ed8);
   --_gtw-primary-text: var(--gtw-color-primary-text, #2563eb);
   --_gtw-on-primary: var(--gtw-color-on-primary, #ffffff);
   --_gtw-bg: var(--gtw-color-bg, #ffffff);
@@ -39,8 +39,8 @@
 /* theme="dark", or theme="auto" under a Tailwind-style html.dark class. */
 .gtw-theme-dark,
 html.dark .gtw-theme-auto {
-  --_gtw-primary: var(--gtw-color-primary, #3b82f6);
-  --_gtw-primary-hover: var(--gtw-color-primary-hover, #60a5fa);
+  --_gtw-primary: var(--gtw-color-primary, #2563eb);
+  --_gtw-primary-hover: var(--gtw-color-primary-hover, #1d4ed8);
   --_gtw-primary-text: var(--gtw-color-primary-text, #93c5fd);
   --_gtw-bg: var(--gtw-color-bg, #111827);
   --_gtw-surface: var(--gtw-color-surface, #1f2937);
@@ -60,7 +60,7 @@ html.dark .gtw-theme-auto {
 /* theme="auto" also follows the OS setting, unless the page opts out with html.light. */
 @media (prefers-color-scheme: dark) {
   html:not(.light) .gtw-theme-auto {
-    --_gtw-primary-hover: var(--gtw-color-primary-hover, #60a5fa);
+    --_gtw-primary-hover: var(--gtw-color-primary-hover, #1d4ed8);
     --_gtw-primary-text: var(--gtw-color-primary-text, #93c5fd);
     --_gtw-bg: var(--gtw-color-bg, #111827);
     --_gtw-surface: var(--gtw-color-surface, #1f2937);

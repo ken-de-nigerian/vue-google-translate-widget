@@ -1,5 +1,19 @@
 # Upgrade Guide
 
+Each section lists what changed between two versions and what, if anything, you need to do. Patch and minor releases
+never require code changes; they're listed here when they change something you can see.
+
+## 2.0 → 2.1
+
+No code changes needed.
+
+- **The default blue is slightly darker** (`#2563eb` instead of `#3b82f6`, and `#1d4ed8` on hover). White text on the
+  old blue had a contrast of 3.68:1, below the 4.5:1 WCAG AA requires; the new one is 5.17:1. If you'd set
+  `--gtw-color-primary` yourself, nothing changes for you.
+- **TypeScript users of the Nuxt module** now get real types for the `googleTranslate` options. In 2.0.0 they
+  resolved to `any`, so mistakes in `nuxt.config` weren't caught. If your config had one, you'll now see a type error.
+- **New `/testing` entry point** with a fake of Google's widget for your own tests. See [Testing Your App](testing.md).
+
 ## 1.x → 2.0
 
 Most apps need **no code changes**. Read the list and adjust what applies.

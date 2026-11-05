@@ -53,6 +53,11 @@ jobs:
       - name: Check bundle size
         run: npm run size
 
+      # Packs the tarball npm would publish, installs it into an empty project and uses every entry point
+      # (ESM, CommonJS, strict types), so packaging mistakes are caught before a release.
+      - name: Smoke-test the packed package
+        run: npm run test:package
+
       # Fails on dead links between the docs chapters.
       - name: Build the docs site
         run: npm run docs:build

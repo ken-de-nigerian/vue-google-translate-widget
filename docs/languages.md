@@ -1,59 +1,113 @@
 # Languages & Flags
 
-**Who this is for:** anyone choosing which languages to offer and how they look. **At the end** you'll know the
-codes, the ordering options and the flag styles.
+Which languages to offer is the first real decision. This chapter covers how to choose them, the language codes
+(including two odd ones), how to order the list for your readers, and why flags are off by default.
 
 ## Choosing languages
 
+Most sites only need a handful. Offer the ones your readers actually use, plus your own language so they can get back
+to the original:
+
 ```vue
-<GoogleTranslateWidget :included-languages="['en', 'fr', 'de', 'yo', 'ig', 'ha']" />
+<GoogleTranslateWidget :included-languages="['en', 'fr', 'yo', 'ig', 'ha', 'ar']" />
 ```
 
-Or pass your own list (any of the 110 built in, or any code Google supports):
+The built-in list has 110 languages, each with its English name, its own name and a flag. Google's widget
+supports 248, so if you need one that isn't built in, pass your own list. You can start from the built-in one:
 
 ```ts
 import { DEFAULT_LANGUAGES, type Language } from '@ken_de_nigerian/vue-google-translate-widget'
 
 const languages: Language[] = [
-  ...DEFAULT_LANGUAGES.filter(l => ['en', 'fr'].includes(l.code)),
+  ...DEFAULT_LANGUAGES.filter(language => ['en', 'fr', 'yo'].includes(language.code)),
   { name: 'Twi', nativeName: 'Twi', code: 'ak', flag: 'gh' },
+  { name: 'Ewe', nativeName: 'Eʋegbe', code: 'ee', flag: 'gh' },
 ]
 ```
 
-Both props are reactive.
-
-## Codes
-
-Codes are Google's. Two are unusual: **`iw`** for Hebrew and **`jw`** for Javanese. The built-in list uses those, and
-`he` / `jv` are accepted everywhere (`includedLanguages`, `pinned`, `changeLanguage`, `?lang=`) and converted for
-you.
-
-Every built-in code is checked against Google's live widget: a snapshot of its list is tested in CI, and a weekly job
-compares the snapshot with the real widget. Google offers 248 languages; the built-in list covers 110, with
-native names. Add others with the `languages` prop.
-
-## Order and display
-
 ```vue
-<GoogleTranslateWidget :pinned="['fr', 'de']" :remember-recent="3" display="native" />
+<GoogleTranslateWidget :languages="languages" />
 ```
 
-- `pinned`: listed first, in that order.
-- `rememberRecent`: the visitor's recent choices (kept in `localStorage`) come next. `true` keeps 3.
-- `display`: `'native'` ("Deutsch"), `'english'` ("German") or `'both'`. Native names are never machine-translated.
+Both `included-languages` and `languages` are reactive: change them and the list updates.
 
-## Flags
+::: warning Check that Google supports a code
+A language in your list that Google doesn't support makes `changeLanguage()` reject with "Google Translate does not
+support the language code". Twi (`ak`) and Ewe (`ee`) above are both in Google's list; check any other code you add
+against Google's list (or your provider's) before you ship it.
+:::
 
-Flags are **off by default** in 2.0. A language isn't a country, and flag images are extra requests.
+## Language codes
+
+Codes are Google's, and mostly the familiar ISO ones: `fr`, `de`, `yo`, plus regional variants like `zh-CN`,
+`zh-TW` and `pt-PT`. Two aren't what you'd expect:
+
+| Language | Google's code | Modern code |
+| --- | --- | --- |
+| Hebrew | `iw` | `he` |
+| Javanese | `jw` | `jv` |
+
+Google's widget still uses the old codes. The built-in list uses them too, and the modern ones are accepted
+everywhere a code is (`included-languages`, `pinned`, `changeLanguage()`, `?lang=`) and converted for you.
+`toGoogleCode()` does the conversion if you need it yourself.
+
+Every built-in code is checked against Google's real widget. CI tests the list against a snapshot of the widget's own
+language list, and a scheduled job loads the live widget every week and fails if Google adds, removes or renames
+anything. That's how 1.0's Hebrew and Javanese entries were found to have never worked.
+
+## Ordering the list
+
+A list of 110 languages is easier to use when the likely ones come first:
 
 ```vue
-<GoogleTranslateWidget show-flags />                       <!-- images from flagcdn.com -->
-<GoogleTranslateWidget show-flags flag-style="emoji" />    <!-- no requests -->
-<GoogleTranslateWidget show-flags :flag-url="f => `/flags/${f}.svg`" />  <!-- self-hosted -->
+<GoogleTranslateWidget :pinned="['fr', 'yo', 'ig', 'ha']" :remember-recent="3" />
 ```
 
-Where a flag would be contested or doesn't exist, a small code badge is shown instead (Esperanto, Kurdish).
-Catalan, Basque and Galician use their regional flags. Set `flag: ''` on your own languages to show the badge.
+- **`pinned`** puts those codes first, in the order you give.
+- **`remember-recent`** puts the visitor's recent choices next, so a reader who switches between English and Yorùbá
+  finds Yorùbá at the top. It's kept in the visitor's `localStorage`; `true` keeps three, a number keeps that many.
+  If storage is unavailable (private browsing, blocked cookies), the list just isn't reordered.
+- Everything else follows in the order of your list. The built-in list is alphabetical by English name.
+
+## Which name to show
+
+```vue
+<GoogleTranslateWidget display="native" />
+```
+
+| `display` | Shows | Default for |
+| --- | --- | --- |
+| `'native'` | "Deutsch" | `GoogleTranslateButton` |
+| `'english'` | "German" | |
+| `'both'` | "Deutsch", with "German" underneath | `GoogleTranslateWidget` |
+
+Native names are the most important part. A German reader looking at a page in Arabic can't read "German" in Arabic,
+but they recognize "Deutsch". That's why native names are protected from translation, while the English names are
+allowed to translate into the page's current language.
+
+## Flags {#flags}
+
+Flags are **off by default**. Languages aren't countries: English is spoken in Britain, the United States, Nigeria and
+dozens of other places, and Portuguese, Spanish, French and Arabic are the same. Any one flag is wrong for many of the
+readers who look for it. Flag images are also extra requests to a third-party server.
+
+If you want them anyway:
+
+```vue
+<!-- Images from flagcdn.com -->
+<GoogleTranslateWidget show-flags />
+
+<!-- Emoji: no requests at all -->
+<GoogleTranslateWidget show-flags flag-style="emoji" />
+
+<!-- Your own images -->
+<GoogleTranslateWidget show-flags :flag-url="flag => `/images/flags/${flag}.svg`" />
+```
+
+The built-in list avoids the most contested choices. Catalan, Basque and Galician use their regional flags, Brazilian
+and European Portuguese have separate entries, and Esperanto and Kurdish show a small language-code badge instead of
+a country's flag. Set `flag: ''` on a language in your own list to show the badge. With emoji flags, a flag that has
+no emoji (like the Catalan one) also falls back to the badge.
 
 ## Built-in languages
 
@@ -172,4 +226,4 @@ Catalan, Basque and Galician use their regional flags. Set `flag: ''` on your ow
 | Zulu | isiZulu | `zu` |
 <!-- generated:languages:end -->
 
-This table is generated from `src/core/languages.ts`; a test fails if they drift.
+This table is generated from `src/core/languages.ts`, and a test fails if the two disagree.

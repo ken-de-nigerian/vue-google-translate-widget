@@ -1,55 +1,57 @@
 # Documentation
 
-New here? Start with the [README](../README.md), then work through the chapters roughly in order. Already know what
-you're looking for? Jump straight there. The same chapters are published as a website:
-**https://ken-de-nigerian.github.io/vue-google-translate-widget/**
+New here? Start with [Your First Language Switcher](quick-start.md), then read the chapters roughly in order:
+each builds on the last. Looking for something specific? Jump straight to it. The same chapters are published,
+with search and a live demo, at **https://ken-de-nigerian.github.io/vue-google-translate-widget/**
 
 ## Getting started
 
 1. [Installation](installation.md)
-2. [Quick Start](quick-start.md): a working switcher in a minute
-3. [Nuxt](nuxt.md): the module, server rendering, `?lang=` links
-4. [How It Works](how-it-works.md): what happens when a visitor picks a language, and the limits
+2. [Your First Language Switcher](quick-start.md): a working switcher on a real page, step by step
+3. [How Translation Works](how-it-works.md): what happens when a visitor picks a language, and the limits
+4. [Nuxt](nuxt.md): the module, server rendering, shareable `?lang=` links
 
-## Components and API
+## Using the package
 
-5. [GoogleTranslateWidget](widget.md): the floating picker
+5. [GoogleTranslateWidget](widget.md): the floating switcher
 6. [GoogleTranslateButton](button.md): the navbar dropdown
-7. [useGoogleTranslate](composable.md): build your own UI
-8. [Plugin](plugin.md): configure once for the whole app; auto-translate
-9. [v-no-translate](directive.md): keep brand names untranslated
+7. [Building Your Own Switcher](composable.md): `useGoogleTranslate`
+8. [Configuration](plugin.md): set options once for the whole app; automatic translation
+9. [Keeping Text Untranslated](directive.md): `v-no-translate`
 
 ## Customising
 
 10. [Theming](theming.md): dark mode, CSS custom properties, unstyled
-11. [Languages & Flags](languages.md): codes, pinned and recent languages, flag styles
-12. [Right-to-Left](rtl.md)
+11. [Languages & Flags](languages.md): codes, ordering, flag styles
+12. [Right-to-Left Languages](rtl.md)
 
 ## Behaviour
 
-13. [Live vs Reload](live-vs-reload.md)
+13. [Live and Reload Modes](live-vs-reload.md)
 14. [Events & Analytics](events-and-analytics.md)
 
 ## Going further
 
 15. [Translation Providers](providers.md): DeepL, Google Cloud, Azure, LibreTranslate, your own
-16. [Server Handlers](server-handlers.md): keep API keys on your server (Nuxt, Next.js, Hono, Express, Laravel)
+16. [Server Handlers](server-handlers.md): keep API keys on your server
+17. [Testing Your App](testing.md): a fake of Google's widget for your tests
 
 ## Shipping it
 
-17. [Performance](performance.md)
-18. [CSP & Privacy](csp-and-privacy.md)
-19. [Production Checklist](production-checklist.md)
+18. [Performance](performance.md)
+19. [Accessibility](accessibility.md)
+20. [Security, CSP & Privacy](csp-and-privacy.md)
+21. [Production Checklist](production-checklist.md)
 
 ## When things go wrong
 
-20. [Troubleshooting](troubleshooting.md)
-21. [FAQ](faq.md)
+22. [Troubleshooting](troubleshooting.md)
+23. [FAQ](faq.md)
 
 ## Reference
 
-22. [API Reference](api-reference.md)
-23. [Architecture](architecture.md)
-24. [Upgrade Guide](upgrade-guide.md)
-25. [Changelog](../CHANGELOG.md)
-26. [Contributing](../CONTRIBUTING.md)
+24. [API Reference](api-reference.md)
+25. [Architecture](architecture.md): how it's built, the decisions behind it, how it's tested
+26. [Upgrade Guide](upgrade-guide.md)
+27. [Changelog](../CHANGELOG.md)
+28. [Contributing](../CONTRIBUTING.md)

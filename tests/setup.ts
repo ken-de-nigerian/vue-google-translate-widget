@@ -47,6 +47,7 @@ afterEach(() => {
   vi.restoreAllMocks()
   // Server-side tests run without a DOM.
   if (typeof document === 'undefined') return
+  delete (window as { google?: unknown }).google
   resetLoader()
   stopDirectionSync()
   document.documentElement.removeAttribute('dir')
